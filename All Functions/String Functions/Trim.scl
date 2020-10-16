@@ -1,0 +1,27 @@
+﻿FUNCTION "Trim" : WString
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "wString" : WString;
+   END_VAR
+
+   VAR_TEMP 
+      ret : WString;
+   END_VAR
+
+   VAR CONSTANT 
+      space : WString := WSTRING#' ';
+   END_VAR
+
+
+BEGIN
+	#ret := #wString;
+	IF LEFT(IN := #ret, L := 1) = #space THEN
+	    #ret := RIGHT(IN := #ret, L := LEN(#ret) - 1);
+	END_IF;
+	IF RIGHT(IN := #ret, L := 1) = #space THEN
+	    #ret := LEFT(IN := #ret, L := LEN(#ret) - 1);
+	END_IF;
+	#Trim := #ret;
+END_FUNCTION
+
