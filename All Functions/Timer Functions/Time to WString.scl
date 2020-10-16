@@ -1,0 +1,84 @@
+﻿FUNCTION "Time to WString" : WString
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "Time" : Time;
+   END_VAR
+
+   VAR_TEMP 
+      "Time as DInt" : DInt;
+      "Hours 10s Place" : DInt;
+      "Hours 1s Place" : DInt;
+      "Minutes 10s Place" : DInt;
+      "Minutes 1s Place" : DInt;
+      "Seconds 10s Place" : DInt;
+      "Seconds 1s Place" : DInt;
+      "Time Elements" : Array[0..4] of WString;
+      Length : Int;
+      "String Box" : WString;
+      "DInt Box" : DInt;
+   END_VAR
+
+   VAR CONSTANT 
+      "Milliseconds per 10 Hours" : DInt := 36_000_000;
+      "Milliseconds per Hour" : DInt := 3_600_000;
+      "Milliseconds per 10 Minutes" : DInt := 600_000;
+      "Milliseconds per Minute" : DInt := 60_000;
+      "Milliseconds per 10 Seconds" : DInt := 10_000;
+      "Milliseconds per Second" : DInt := 1_000;
+   END_VAR
+
+
+BEGIN
+	REGION GET INPUT
+	    #"Time as DInt" := #Time;
+	END_REGION
+	
+	REGION CONVERT TIME INTO INDIVIDUAL PLACE VALUES
+	    #"Minutes 10s Place" := #"Time as DInt" / #"Milliseconds per 10 Minutes";
+	    #"Minutes 1s Place" := (#"Time as DInt" / #"Milliseconds per Minute") MOD 10;
+	    #"Seconds 10s Place" := (#"Time as DInt" MOD #"Milliseconds per Minute") / #"Milliseconds per 10 Seconds";
+	    #"Seconds 1s Place" := (#"Time as DInt" / #"Milliseconds per Second") MOD 10;
+	END_REGION
+	
+	REGION "ADD SIGN"
+	    #"Time Elements"[0] := wstring#'';
+	    IF #"Minutes 10s Place" < 0 OR
+	        #"Minutes 1s Place" < 0 OR
+	        #"Seconds 10s Place" < 0 OR
+	        #"Seconds 1s Place" < 0 THEN
+	         #"Time Elements"[0] := wstring#'-';
+	    END_IF;
+	END_REGION
+	
+	REGION CONVERT PLACE VALUES INTO COMPONENT STRINGS
+	    // MINUTES
+	    #"DInt Box" := #"Minutes 10s Place" * 10 + #"Minutes 1s Place";
+	    #"String Box" := DINT_TO_WSTRING(IN := #"DInt Box");
+	    #"String Box" := "Strip Sign"("WString":=#"String Box");
+	    #"String Box" := "Add Leading"("Leading Character" := WCHAR#'0',
+	                                   "Desired Length" := 2,
+	                                   "String" := #"String Box");
+	    #"Time Elements"[1] := #"String Box";
+	    // COLON
+	    #"Time Elements"[2] := WSTRING#':';
+	    // SECONDS
+	    #"DInt Box" := #"Seconds 10s Place" * 10 + #"Seconds 1s Place";
+	    #"String Box" := DINT_TO_WSTRING(IN := #"DInt Box");
+	    #"String Box" := "Strip Sign"("WString":=#"String Box");
+	    #"String Box" := "Add Leading"("Leading Character" := WCHAR#'0',
+	                                   "Desired Length" := 2,
+	                                   "String" := #"String Box");
+	    #"Time Elements"[3] := #"String Box";
+	END_REGION
+	
+	
+	REGION RETURN VALUE
+	    #"Time to WString" := CONCAT_WSTRING(IN1 := #"Time Elements"[0],
+	                                         IN2 := #"Time Elements"[1],
+	                                         IN3 := #"Time Elements"[2],
+	                                         IN4 := #"Time Elements"[3]);
+	END_REGION
+	
+END_FUNCTION
+

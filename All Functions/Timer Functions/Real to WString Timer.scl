@@ -1,0 +1,17 @@
+﻿FUNCTION "Real to WString Timer" : WString
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      realVal : Real;
+   END_VAR
+
+   VAR CONSTANT 
+      msPerSec : Real := 1000.0;
+   END_VAR
+
+
+BEGIN
+	#"Real to WString Timer" := "Time to WString"(DINT_TO_TIME(REAL_TO_DINT(#realVal * #msPerSec)));
+	
+END_FUNCTION
+

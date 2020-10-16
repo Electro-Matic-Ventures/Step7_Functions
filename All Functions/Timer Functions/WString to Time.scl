@@ -1,0 +1,68 @@
+﻿FUNCTION "WString to Time" : Time
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "WString" : WString;
+   END_VAR
+
+   VAR_TEMP 
+      Count : UInt;
+      "DInt Box" : DInt;
+      "String Box" : WString [5];
+      "Time Box" : Time;
+      "WChar Array" : Array[0..4] of WChar;
+   END_VAR
+
+   VAR CONSTANT 
+      "ms/(10 hr)" : DInt := 36_000_000;
+      "ms/hr" : DInt := 3_600_000;
+      "ms/(10 min)" : DInt := 600_000;
+      "ms/min" : DInt := 60_000;
+      "ms/(10 sec)" : DInt := 10_000;
+      "ms/sec" : DInt := 1_000;
+   END_VAR
+
+
+BEGIN
+	REGION EXPLODE INPUT
+	    
+	    #"String Box" := #WString;
+	    IF #"String Box" = WSTRING#'' THEN
+	        #"String Box" := WSTRING#'00:00';
+	    END_IF;
+	    
+	    Strg_TO_Chars(Strg := #"String Box",
+	                  pChars := 0,
+	                  Cnt => #Count,
+	                  Chars := #"WChar Array");
+	    
+	END_REGION
+	
+	REGION CONVERT ARRAY ELEMENTS TO TIME
+	    
+	    // 10S OF MINUTES
+	    #"DInt Box" := WCHAR_TO_DINT(IN := #"WChar Array"[0]) - 16#30;
+	    #"Time Box" := #"Time Box" + #"DInt Box" * #"ms/(10 min)";
+	    
+	    // MINUTES
+	    #"DInt Box" := WCHAR_TO_DINT(IN := #"WChar Array"[1]) - 16#30;
+	    #"Time Box" := #"Time Box" + #"DInt Box" * #"ms/min";
+	    
+	    // 10S OF SECONDS
+	    #"DInt Box" := WCHAR_TO_DINT(IN := #"WChar Array"[3]) - 16#30;
+	    #"Time Box" := #"Time Box" + #"DInt Box" * #"ms/(10 sec)";
+	    
+	    // SECONDS
+	    #"DInt Box" := WCHAR_TO_DINT(IN := #"WChar Array"[4]) - 16#30;
+	    #"Time Box" := #"Time Box" + #"DInt Box" * #"ms/sec";
+	    
+	END_REGION
+	
+	
+	REGION RETURN VALUE
+	    
+	    #"WString to Time" := #"Time Box";
+	    
+	END_REGION
+END_FUNCTION
+
