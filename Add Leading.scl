@@ -1,0 +1,29 @@
+﻿FUNCTION "Add Leading" : WString
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "Leading Character" : WChar;
+      "Desired Length" : USInt;
+      "String" : WString;
+   END_VAR
+
+   VAR_TEMP 
+      Length : Int;
+      "String Box" : WString;
+      "Constant" : WString;
+   END_VAR
+
+
+BEGIN
+	#"String Box" := #String;
+	#Length := LEN(#"String Box");
+	
+	WHILE #Length < #"Desired Length" DO
+	    #"String Box" := CONCAT_WSTRING(IN1 := #"Leading Character",
+	                                    IN2 := #"String Box");
+	    #Length := LEN(#"String Box");
+	END_WHILE;
+	
+	#"Add Leading" := #"String Box";
+END_FUNCTION
+
