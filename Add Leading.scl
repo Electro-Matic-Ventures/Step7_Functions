@@ -10,7 +10,6 @@ VERSION : 0.1
    VAR_TEMP 
       Length : Int;
       "String Box" : WString;
-      "Constant" : WString;
    END_VAR
 
 
