@@ -1,0 +1,31 @@
+﻿FUNCTION "Strip Sign" : WString
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "WString" : WString;
+   END_VAR
+
+   VAR_TEMP 
+      Length : Int;
+      "String Box" : WString;
+      "Test Character" : WString;
+   END_VAR
+
+   VAR CONSTANT 
+      "+" : WChar := WCHAR#'+';
+      "-" : WChar := WCHAR#'-';
+   END_VAR
+
+
+BEGIN
+	#"String Box" := #WString;
+	#"Test Character" := LEFT_WSTRING(IN := #"String Box",
+	                                  L := 1);
+	IF #"Test Character" = #"+" OR #"Test Character" = #"-" THEN
+	    #Length := LEN(#"String Box");
+	    #"String Box" := RIGHT_WSTRING(IN := #"String Box", L := #Length - 1);
+	    
+	END_IF;
+	#"Strip Sign" := #"String Box";
+END_FUNCTION
+
