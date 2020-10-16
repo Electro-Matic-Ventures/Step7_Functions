@@ -1,0 +1,358 @@
+﻿TYPE "PB Data: Graphic/Text List"
+VERSION : 0.1
+   STRUCT
+      actuate : Bool;
+      animate : USInt;
+      listSelect : UInt;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Table Nav: PLC"
+VERSION : 0.1
+   STRUCT
+      top : Bool;
+      pageUp : Bool;
+      lineUp : Bool;
+      lineDown : Bool;
+      pageDown : Bool;
+      bottom : Bool;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Table Nav: HMI"
+VERSION : 0.1
+   STRUCT
+      top : "PB Data: Graphic/Text List";
+      pageUp : "PB Data: Graphic/Text List";
+      lineUp : "PB Data: Graphic/Text List";
+      lineDown : "PB Data: Graphic/Text List";
+      pageDown : "PB Data: Graphic/Text List";
+      bottom : "PB Data: Graphic/Text List";
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION_BLOCK "Pulses: Table Nav"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      press { ExternalAccessible := 'False'; ExternalVisible := 'False'; ExternalWritable := 'False'} : "Table Nav: HMI";
+   END_VAR
+
+   VAR_OUTPUT 
+      pulses : "Table Nav: PLC";
+   END_VAR
+
+   VAR 
+      old : "Table Nav: PLC";
+   END_VAR
+
+
+BEGIN
+	REGION "EVALUATION"
+	    #pulses.top := #press.top.actuate AND NOT #old.top;
+	    #pulses.pageUp := #press.pageUp.actuate AND NOT #old.pageUp;
+	    #pulses.lineUp := #press.lineUp.actuate AND NOT #old.lineUp;
+	    #pulses.lineDown := #press.lineDown.actuate AND NOT #old.lineDown;
+	    #pulses.pageDown := #press.pageDown.actuate AND NOT #old.pageDown;
+	    #pulses.bottom := #press.bottom.actuate AND NOT #old.bottom;
+	END_REGION
+	
+	REGION "CHANGE DETECTION"
+	    #old.top := #press.top.actuate;
+	    #old.pageUp := #press.pageUp.actuate;
+	    #old.lineUp := #press.lineUp.actuate;
+	    #old.lineDown := #press.lineDown.actuate;
+	    #old.pageDown := #press.pageDown.actuate;
+	    #old.bottom := #press.bottom.actuate;
+	END_REGION
+	
+END_FUNCTION_BLOCK
+
+FUNCTION "Table Nav: Calculate Offset" : DInt
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      lenTblData : DInt;
+      lenTblDisp : DInt;
+      pulses : "Table Nav: PLC";
+      r1 : DInt;
+   END_VAR
+
+   VAR_TEMP 
+      retOffset : DInt;
+   END_VAR
+
+
+BEGIN
+	REGION "DESCRIPTION"
+	    (*
+	    The offset from the first row of the table is calculated based on the button pressed.
+	    *)
+	END_REGION
+	
+	REGION "TOP"
+	    IF #pulses.top THEN
+	        #retOffset := -1 * #r1;
+	    END_IF;
+	END_REGION
+	
+	REGION "PAGE UP"
+	    IF #pulses.pageUp THEN
+	        #retOffset := -1 * #lenTblDisp;
+	    END_IF;
+	END_REGION
+	
+	REGION "LINE UP"
+	    IF #pulses.lineUp THEN
+	        #retOffset := -1;
+	    END_IF;
+	END_REGION
+	
+	REGION "LINE DOWN"
+	    IF #pulses.lineDown THEN
+	        #retOffset := 1;
+	    END_IF;
+	END_REGION
+	
+	REGION "PAGE DOWN"
+	    IF #pulses.pageDown THEN
+	        #retOffset := #lenTblDisp ;
+	    END_IF;
+	END_REGION
+	
+	REGION "BOTTOM"
+	    IF #pulses.bottom THEN
+	        #retOffset := #lenTblData - #lenTblDisp - #r1;
+	    END_IF;
+	END_REGION
+	
+	REGION "RETURN"
+	    #"Table Nav: Calculate Offset" := #retOffset;
+	END_REGION
+END_FUNCTION
+
+FUNCTION "Table Nav: Get First Row" : DInt
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      lenTblData : DInt;
+      offset : DInt;
+      r1 : DInt;
+   END_VAR
+
+   VAR_TEMP 
+      newR1 : DInt;
+      trgRun : Bool;
+   END_VAR
+
+
+BEGIN
+	REGION "DESCRIPTION"
+	    (*
+	    The new first row of the table is calculated from the offset. 
+	    Rollover and rollunder are resolved for the first row.
+	    *)
+	END_REGION
+	
+	REGION "COPY TO INTERNAL"
+	    #newR1 := #r1 + #offset;
+	END_REGION
+	
+	REGION "ROLLUNDER"
+	    IF #newR1 < 0 THEN
+	        #newR1 := #newR1 + #lenTblData;
+	    END_IF;
+	END_REGION
+	
+	REGION "ROLLOVER"
+	    IF #newR1 > #lenTblData THEN
+	        #newR1 := #newR1 - #lenTblData;
+	    END_IF;
+	END_REGION
+	
+	REGION "OUTPUT"
+	    #"Table Nav: Get First Row" := #newR1;
+	END_REGION
+	        
+END_FUNCTION
+
+FUNCTION "Table Nav: Calc Row Indices" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      lenTblData : DInt;
+      lenTblDisp : DInt;
+      r1 : DInt;
+   END_VAR
+
+   VAR_IN_OUT 
+      rowIndicies : Array[0..#lenRetArr] of DInt;
+   END_VAR
+
+   VAR_TEMP 
+      pOutArr : Int;
+      calcRowIdx : DInt;
+      retRowIndicies : Array[0..#lenRetArr] of DInt;
+   END_VAR
+
+   VAR CONSTANT 
+      lenRetArr : DInt := 999;
+   END_VAR
+
+
+BEGIN
+	REGION "DESCRIPTION"
+	    (*
+	    An array of the row indicies that the table should display is returned.
+	    Rollover and rollunder are calculated index by index.
+	    *) 
+	END_REGION
+	
+	REGION "INITIALIZE OUTPUT"
+	    FOR #pOutArr := 0 TO #lenRetArr DO
+	        #rowIndicies[#pOutArr] := 0;
+	    END_FOR;
+	END_REGION
+	
+	REGION "CALCULATE INDICIES"
+	    FOR #pOutArr := 0 TO #lenTblDisp DO
+	        
+	        REGION "CALCULATE INDEX"
+	            #calcRowIdx := #r1 + #pOutArr;
+	        END_REGION
+	        
+	        REGION "ROLL UNDER"
+	            IF #calcRowIdx < 0 THEN
+	                #calcRowIdx := #calcRowIdx + #lenTblDisp;
+	            END_IF;
+	        END_REGION
+	
+	        REGION "ROLL OVER"
+	            IF #calcRowIdx >= #lenTblData THEN
+	                #calcRowIdx := #calcRowIdx - #lenTblData;
+	            END_IF;
+	        END_REGION
+	
+	        REGION "SAVE TO ARRAY"
+	            #retRowIndicies[#pOutArr] := #calcRowIdx;
+	        END_REGION
+	
+	    END_FOR;
+	END_REGION
+	
+	REGION "OUTPUT"
+	    #rowIndicies := #retRowIndicies;
+	END_REGION
+END_FUNCTION
+
+FUNCTION "Table Nav: Run Trigger" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      pulses : "Table Nav: PLC";
+   END_VAR
+
+
+BEGIN
+	    #"Table Nav: Run Trigger" :=
+	    #pulses.top OR
+	    #pulses.pageUp OR
+	    #pulses.lineUp OR
+	    #pulses.lineDown OR
+	    #pulses.pageDown OR
+	    #pulses.bottom;
+END_FUNCTION
+
+FUNCTION_BLOCK "Table Navigation General"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      tblData : Variant;
+      tblDisp : Variant;
+      tableNav : "Table Nav: HMI";
+   END_VAR
+
+   VAR_IN_OUT 
+      rowIndices : Variant;
+   END_VAR
+
+   VAR 
+      "inst Pulses: Table Nav" : "Pulses: Table Nav";
+      r1 { ExternalAccessible := 'False'; ExternalVisible := 'False'; ExternalWritable := 'False'} : DInt;
+   END_VAR
+
+   VAR_TEMP 
+      len : Struct
+         tblData : DInt;
+         tblDisp : DInt;
+      END_STRUCT;
+      offset : DInt;
+      pulses : "Table Nav: PLC";
+      RET_VAL : Int;
+      retRowIndices : Array[0..#lenRetArr] of DInt;
+   END_VAR
+
+   VAR CONSTANT 
+      lenRetArr : DInt := 999;
+   END_VAR
+
+
+BEGIN
+	REGION "DESCRIPTION"
+	    (*
+	    The function returns row indicies indicating the visible rows of a larger
+	    table determined by standard table navigation buttons.
+	    The function uses the variant data type to handle tables of any size.
+	    Rollover and rollunder features are built in.
+	    *)    
+	END_REGION
+	
+	REGION "GET PRESS PULSES"    
+	    #"inst Pulses: Table Nav"(press := #tableNav,
+	                              pulses=> #pulses);
+	END_REGION
+	
+	REGION "RUN ON BUTTON PRESS"
+	    IF "Table Nav: Run Trigger"(#pulses) THEN
+	        
+	        REGION "GET ARRAY PARAMETERS"
+	            #len.tblData := UDINT_TO_DINT(CountOfElements(#tblData));
+	            #len.tblDisp := UDINT_TO_DINT(CountOfElements(#tblDisp));
+	        END_REGION
+	        
+	        REGION "CALCULATE OFFSET"
+	            #offset := "Table Nav: Calculate Offset"(pulses := #pulses,
+	                                                     lenTblData := #len.tblData,
+	                                                     lenTblDisp := #len.tblDisp,
+	                                                     r1 := #r1);
+	        END_REGION
+	        
+	        REGION "CALCULATE FIRST ROW"
+	            #r1 := "Table Nav: Get First Row"(lenTblData := #len.tblData,
+	                                              offset := #offset,
+	                                              r1 := #r1);
+	        END_REGION
+	        
+	        REGION "CALCUALTE ROW INDICIES"
+	            "Table Nav: Calc Row Indices"(lenTblData := #len.tblData,
+	                                          lenTblDisp := #len.tblDisp,
+	                                          r1 := #r1,
+	                                          rowIndicies := #retRowIndices);
+	        END_REGION
+	        
+	        REGION "RETURN ROW INDICIES"
+	            #RET_VAL := MOVE_BLK_VARIANT(SRC := #retRowIndices,
+	                                         COUNT := DINT_TO_UDINT(#len.tblDisp),
+	                                         SRC_INDEX := 0,
+	                                         DEST_INDEX := 0,
+	                                         DEST => #rowIndices);
+	        END_REGION
+	        
+	    END_IF;
+	END_REGION
+	
+END_FUNCTION_BLOCK
+
