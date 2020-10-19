@@ -1,0 +1,22 @@
+﻿FUNCTION "LRUD KP8 Remap" : Int
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      btnNum : Int;
+   END_VAR
+
+   VAR_TEMP 
+      output : Int;
+   END_VAR
+
+
+BEGIN
+	IF #btnNum MOD 2 = 0 THEN
+	    #output := 7 - #btnNum / 2;
+	END_IF;
+	IF #btnNum MOD 2 <> 0 THEN
+	    #output := 3 - #btnNum / 2;
+	END_IF;
+	#"LRUD KP8 Remap" := #output;
+END_FUNCTION
+

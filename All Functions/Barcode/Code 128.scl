@@ -1,0 +1,124 @@
+﻿FUNCTION_BLOCK "Code 128"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      partNumber : String;
+   END_VAR
+
+   VAR_OUTPUT 
+      barcode : String;
+   END_VAR
+
+   VAR 
+      charsIn : Array[0..255] of Byte;
+      charsOut : Array[0..255] of Byte;
+      cnt : UInt;
+      intVals : Array[0..255] of Int := 104;
+      sum : Int;
+      checkSum : Int;
+   END_VAR
+
+   VAR_TEMP 
+      pn : String;
+      i : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      startChar : Char := 'Ì';
+      stopChar : Char := 'Î';
+   END_VAR
+
+
+BEGIN
+	REGION "DESCRIPTION"
+	    (*
+	    Outputs a string that can be turned into a code 128 barcode.
+	    Other steps are required to get the output text to display properly.
+	    https://support.industry.siemens.com/cs/nl/en/view/106226404
+	    *)
+	END_REGION
+	
+	REGION "COPY TO LOCAL"
+	    #pn := #partNumber;
+	END_REGION
+	
+	REGION "CLEAR BUFFER"
+	    FOR #i := 0 TO 255 DO
+	        #charsIn[#i] := 16#00;
+	        #charsOut[#i] := 16#00;
+	        #intVals[#i] := 0;
+	    END_FOR;
+	END_REGION
+	
+	REGION "BREAK PN INTO AN ARRAY OF CHARS"
+	    Strg_TO_Chars(Strg := #pn,
+	                  pChars := 0,
+	                  Cnt => #cnt,
+	                  Chars := #charsIn);
+	END_REGION
+	
+	REGION "INITIALIZE SUM"
+	    #sum := 104;
+	END_REGION
+	
+	REGION "CHECKSUM"
+	    
+	    REGION "CHARACTER OPERATIONS"
+	        FOR #i := 0 TO UINT_TO_INT(#cnt - 1) DO
+	            
+	            REGION "MAP TO DOMAIN"
+	                #intVals[#i] := CHAR_TO_INT(#charsIn[#i]) - 32;
+	                #intVals[#i] := #intVals[#i] * (#i + 1);
+	            END_REGION
+	            
+	            REGION "SUM"
+	                #sum := #sum + #intVals[#i];
+	            END_REGION
+	            
+	        END_FOR;
+	    END_REGION
+	    
+	    REGION "CHECK SUM END"
+	        #checkSum := (#sum MOD 103) + 32;
+	    END_REGION
+	    
+	    REGION "EXPANDED CHARACTER SET SUPPORT"
+	        IF #checkSum >= 127 THEN
+	            #checkSum := #checkSum + 68;
+	        END_IF;
+	    END_REGION
+	    
+	END_REGION
+	
+	
+	REGION "MAP TO 128"
+	    
+	    REGION "START CHARACTER"
+	        #charsOut[0] := CHAR_TO_BYTE(#startChar);
+	    END_REGION
+	
+	    REGION "BODY"
+	        FOR #i := 1 TO UINT_TO_INT(#cnt) DO
+	            #charsOut[#i] := #charsIn[#i - 1];
+	        END_FOR;
+	    END_REGION
+	
+	    REGION "CHECKSUM"
+	        #charsOut[#cnt + 1] := INT_TO_BYTE(#checkSum);
+	    END_REGION
+	
+	    REGION "STOP CHARACTER"
+	        #charsOut[#cnt + 2] := CHAR_TO_BYTE(#stopChar);
+	    END_REGION
+	
+	END_REGION
+	
+	REGION "OUTPUT"
+	    Chars_TO_Strg(Chars := #charsOut,
+	                  pChars := 0,
+	                  Cnt := #cnt + 3,
+	                  Strg => #barcode);
+	END_REGION
+	
+END_FUNCTION_BLOCK
+
