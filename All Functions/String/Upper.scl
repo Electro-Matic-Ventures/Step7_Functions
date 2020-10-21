@@ -1,0 +1,74 @@
+﻿FUNCTION "Upper" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_IN_OUT 
+      "string" : Variant;
+   END_VAR
+
+   VAR_TEMP 
+      "type" : Bool;
+      stringBox : String;
+      status : Int;
+      wStringBox : WString;
+      charArr : Array[0..255] of Char;
+      cntChar : UInt;
+      pChar : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      asciiLow : Char := 'a';
+      asciiHigh : Char := 'z';
+      asciiCaseOffset : Int := 32;
+   END_VAR
+
+
+BEGIN
+	IF TypeOf(#string) = String THEN
+	    #status := MOVE_BLK_VARIANT(SRC := #string,
+	                                COUNT := 1,
+	                                SRC_INDEX := 0,
+	                                DEST_INDEX := 0,
+	                                DEST => #stringBox);
+	ELSIF TypeOf(#string) = WString THEN
+	    #status := MOVE_BLK_VARIANT(SRC := #string,
+	                                COUNT := 1,
+	                                SRC_INDEX := 0,
+	                                DEST_INDEX := 0,
+	                                DEST => #wStringBox);
+	    #stringBox := WSTRING_TO_STRING(#wStringBox);
+	ELSE
+	    RETURN;
+	END_IF;
+	
+	Strg_TO_Chars(Strg := #stringBox,
+	              pChars := 0,
+	              Cnt => #cntChar,
+	              Chars := #charArr);
+	
+	FOR #pChar := 0 TO UINT_TO_INT(#cntChar) - 1 DO
+	    IF #asciiLow <= #charArr[#pChar] AND #charArr[#pChar] <= #asciiHigh THEN
+	        #charArr[#pChar] := INT_TO_CHAR(CHAR_TO_INT(#charArr[#pChar]) - #asciiCaseOffset);
+	    END_IF;
+	END_FOR;
+	
+	Chars_TO_Strg(Chars := #charArr,
+	              pChars := 0,
+	              Cnt := #cntChar,
+	              Strg => #stringBox);
+	
+	IF TypeOf(#string) = String THEN
+	    #status := MOVE_BLK_VARIANT(SRC := #stringBox,
+	                                COUNT := 1,
+	                                SRC_INDEX := 0,
+	                                DEST_INDEX := 0,
+	                                DEST => #string);
+	ELSIF TypeOf(#string) = WString THEN
+	    #wStringBox := STRING_TO_WSTRING(#stringBox);
+	    #status := MOVE_BLK_VARIANT(SRC := #wStringBox,
+	                                COUNT := 1,
+	                                SRC_INDEX := 0,
+	                                DEST_INDEX := 0,
+	                                DEST => #string);
+	END_IF;
+END_FUNCTION
+
