@@ -1,4 +1,4 @@
-﻿TYPE "KP8: Button Parameters"
+﻿TYPE "KP8 Driver: Parameters: 1 Button"
 VERSION : 0.1
    STRUCT
       activate : Bool;   // true = button on, flase = button off
@@ -12,7 +12,7 @@ VERSION : 0.1
 
 END_TYPE
 
-TYPE "KP8: Button States"
+TYPE "KP8 Driver: Button States"
 VERSION : 0.1
    STRUCT
       btn : Array[0..7] of Bool;
@@ -20,110 +20,220 @@ VERSION : 0.1
 
 END_TYPE
 
-TYPE "KP8: Parameters for All Buttons"
+TYPE "KP8 Driver: Parameters: 8 Buttons"
 VERSION : 0.1
    STRUCT
-      btn : Array[0..7] of "KP8: Button Parameters";
+      btn : Array[0..7] of "KP8 Driver: Parameters: 1 Button";
    END_STRUCT;
 
 END_TYPE
 
-FUNCTION "KP8 Driver: Button Color" : Void
+TYPE "KP8 Driver: Feedback Data"
+VERSION : 0.1
+   STRUCT
+      acutal : "KP8 Driver: Button States";
+      falling : "KP8 Driver: Button States";
+      rising : "KP8 Driver: Button States";
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "kp8Driver.group" : Void
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_INPUT 
-      btnNum : Int;
-      lblColor : String;
+      btnNumber : Int;
+      btnsParams : "KP8 Driver: Parameters: 8 Buttons";
    END_VAR
 
    VAR_IN_OUT 
-      btnColor : DWord;
+      state : "KP8 Driver: Feedback Data";
    END_VAR
 
    VAR_TEMP 
-      btnMask : DWord;
-      ret : DWord;
-   END_VAR
-
-   VAR CONSTANT 
-      btnMskRed : DWord := dw#16#0100_0000;
-      btnMskGreen : DWord := dw#16#0001_0000;
-      btnMskBlue : DWord := dw#16#000_0100;
-      btnMskYellow : DWord := dw#16#0101_0000;
-      btnMskWhite : DWord := dw#16#0101_0100;
-      btnMskBlack : DWord := dw#16#FEFE_FEFF;
-      initBtnColors : DWord := dw#16#0000_0000;
-   END_VAR
-
-
-BEGIN
-	#ret := #btnColor;
-	
-	#ret := #ret AND ROL(IN := #btnMskBlack,
-	                     N := INT_TO_UDINT(#btnNum));
-	
-	IF (#lblColor = 'red') THEN
-	    #btnMask := #btnMskRed;
-	ELSIF (#lblColor = 'green') THEN
-	    #btnMask := #btnMskRed;
-	ELSIF (#lblColor = 'blue') THEN
-	    #btnMask := #btnMskRed;
-	ELSIF (#lblColor = 'yellow') THEN
-	    #btnMask := #btnMskRed;
-	ELSIF (#lblColor = 'white') THEN
-	    #btnMask := #btnMskRed;
-	ELSIF (#lblColor = 'off') THEN
-	    #btnMask := #btnMskRed;
-	END_IF;
-	
-	#ret := #ret OR SHL(IN := #btnMask,
-	                    N := INT_TO_UDINT(#btnNum));
-	
-	#btnColor := #ret;
-END_FUNCTION
-
-FUNCTION "KP8 Driver: Toggle Button State" : Void
-{ S7_Optimized_Access := 'TRUE' }
-VERSION : 0.1
-   VAR_INPUT 
-      kp8DI : Word;
-   END_VAR
-
-   VAR_IN_OUT 
-      btnStates : "KP8: Button States";
-   END_VAR
-
-   VAR_TEMP 
-      btnPress : "KP8: Button States";
-      pbtn : Int;
+      pBtn : Int;
+      retState : "KP8 Driver: Feedback Data";
+      testGroup : Int;
+      thisGroup : Int;
    END_VAR
 
 
 BEGIN
 	REGION "COPY TO LOCAL"
-	    SCATTER(IN := #kp8DI.%B1,
-	            OUT => #btnPress.btn);
+	    #retState := #state;
 	END_REGION
 	
-	REGION "TOGGLE STATE"
-	    
-	    REGION "FOR EACH BUTTON"
-	        FOR #pbtn := 0 TO 7 DO
-	            
-	            REGION "ON PRESS RISING EDGE"
-	                IF #btnPress.btn[#pbtn] AND NOT #btnStates.btn[#pbtn] THEN
-	                    
-	                    REGION "TOGGLE"
-	                        #btnStates.btn[#pbtn] := NOT #btnStates.btn[#pbtn];
-	                    END_REGION
-	                    
-	                END_IF;
-	            END_REGION
-	            
-	        END_FOR;
-	    END_REGION
-	    
+	REGION "GROUP 0 DISABLES GROUP MODE"
+	    #thisGroup := #btnsParams.btn[#btnNumber].group;
+	    IF #thisGroup <> 0 THEN
+	        
+	        REGION "FOR EACH BUTTONS' PARAMETERS"
+	            FOR #pBtn := 0 TO 7 DO
+	                
+	                REGION "SKIP THE CURRENT BUTTON"
+	                    IF #pBtn <> #btnNumber THEN
+	                        GOTO NEXT;
+	                    END_IF;
+	                END_REGION
+	                
+	                REGION "GROUP EXCLUSION"
+	                    #testGroup := #btnsParams.btn[#pBtn].group;
+	                    IF #testGroup = #thisGroup THEN
+	                        #retState.acutal.btn[#pBtn] := FALSE;
+	                    END_IF;
+	                END_REGION
+	                
+	            NEXT:
+	                ;
+	                
+	            END_FOR;
+	        END_REGION
+	
+	    END_IF;
 	END_REGION
+	
+	REGION "OUTPUT"
+	    #state := #retState;
+	END_REGION
+END_FUNCTION
+
+FUNCTION "kp8Driver.toggle" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      signal : Bool;   // edge signal
+   END_VAR
+
+   VAR_IN_OUT 
+      state : Bool;   // logical button state
+   END_VAR
+
+
+BEGIN
+	IF #signal THEN
+	    #state := NOT #state;
+	END_IF;
+END_FUNCTION
+
+FUNCTION "kp8Driver.feedback" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      signal : "KP8 Driver: Button States";
+      oldSignal : "KP8 Driver: Button States";
+   END_VAR
+
+   VAR_IN_OUT 
+      feedback : "KP8 Driver: Feedback Data";
+   END_VAR
+
+   VAR_TEMP 
+      pBtn : Int;
+      ret : "KP8 Driver: Feedback Data";
+   END_VAR
+
+
+BEGIN
+	REGION "ACTUAL"
+	    #ret.acutal := #signal;
+	END_REGION
+	
+	REGION "ON NEW INPUT"
+	    IF #signal <> #oldSignal THEN
+	        
+	        REGION "FOR EACH BUTTON"
+	            FOR #pBtn := 0 TO 7 DO
+	                
+	                REGION "DEFAULT"
+	                    #ret.rising.btn[#pBtn] := FALSE;
+	                    #ret.falling.btn[#pBtn] := FALSE;
+	                END_REGION
+	                
+	                REGION "RISING EDGE"
+	                    IF #signal.btn[#pBtn] AND NOT #oldSignal.btn[#pBtn] THEN
+	                        #ret.rising.btn[#pBtn] := TRUE;
+	                    END_IF;
+	                END_REGION
+	                
+	                REGION "FALLING EDGE"
+	                    IF NOT #signal.btn[#pBtn] AND #oldSignal.btn[#pBtn] THEN
+	                        #ret.falling.btn[#pBtn] := TRUE;
+	                    END_IF;
+	                END_REGION
+	                
+	            END_FOR;
+	        END_REGION
+	        
+	    END_IF;
+	END_REGION
+	
+	        
+	REGION "OUTPUT"
+	    #feedback := #ret;
+	END_REGION
+	
+END_FUNCTION
+
+FUNCTION "kp8Driver.state" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      press : "KP8 Driver: Feedback Data";
+      btnParams : "KP8 Driver: Parameters: 8 Buttons";
+   END_VAR
+
+   VAR_IN_OUT 
+      state : "KP8 Driver: Feedback Data";
+   END_VAR
+
+   VAR_TEMP 
+      pBtn : Int;
+      retState : "KP8 Driver: Feedback Data";
+   END_VAR
+
+
+BEGIN
+	REGION "BUTTTON IS ACTIVE"
+	    IF #btnParams.btn[#pBtn].activate THEN
+	        
+	        REGION "COPY TO LOCAL"
+	            #retState := #state;
+	        END_REGION
+	        
+	        REGION "FOR EACH BUTTON"
+	            FOR #pBtn := 0 TO 7 DO
+	                
+	                REGION "MODE IS MOMENTARY"
+	                    IF NOT #btnParams.btn[#pBtn].mode THEN
+	                        #retState.acutal.btn[#pBtn] := #press.acutal.btn[#pBtn];
+	                    END_IF;
+	                END_REGION
+	                
+	                REGION "MAINTINED"
+	                    IF #btnParams.btn[#pBtn].mode THEN
+	                        "kp8Driver.toggle"(signal := #press.rising.btn[#pBtn],
+	                                           state := #retState.acutal.btn[#pBtn]);
+	                    END_IF;
+	                END_REGION
+	                
+	                REGION "GROUP EXCLUSIVITY"
+	                    IF #press.rising.btn[#pBtn] THEN
+	                        "kp8Driver.group"(btnNumber := #pBtn,
+	                                                btnsParams := #btnParams,
+	                                                state := #retState);
+	                    END_IF;
+	                END_REGION
+	                           
+	           END_FOR;
+	        END_REGION
+	        
+	        REGION "OUTPUT"
+	            #state := #retState;
+	        END_REGION
+	        
+	    END_IF;
+	END_REGION
+	
 END_FUNCTION
 
 FUNCTION_BLOCK "KP8 Driver"
@@ -132,28 +242,35 @@ VERSION : 2.0
    VAR_INPUT 
       kp8DI : Word;
       reset : Bool;   // resets button states
-      btnParams : "KP8: Parameters for All Buttons";
+      btnParams : "KP8 Driver: Parameters: 8 Buttons";
    END_VAR
 
-   VAR_OUTPUT DB_SPECIFIC
+   VAR_OUTPUT 
       kp8DQ : DWord;
-      statesOut { ExternalVisible := 'False'; ExternalWritable := 'False'} : "KP8: Button States";
+      press : "KP8 Driver: Feedback Data";
+      state { ExternalVisible := 'False'; ExternalWritable := 'False'} : "KP8 Driver: Feedback Data";
    END_VAR
 
-   VAR RETAIN
+   VAR DB_SPECIFIC
       colorMask { ExternalAccessible := 'False'; ExternalVisible := 'False'; ExternalWritable := 'False'} : DWord;
-      btnStates : "KP8: Button States";
       old : Struct
-         btnParams : "KP8: Parameters for All Buttons";
-         btnStates : "KP8: Button States";
-         kp8DI : Word;
+         btnParam : "KP8 Driver: Parameters: 8 Buttons";
+         btnPress : "KP8 Driver: Button States";
+         btnState : "KP8 Driver: Button States";
       END_STRUCT;
+   END_VAR
+   VAR 
+      btnPress { ExternalAccessible := 'False'; ExternalVisible := 'False'; ExternalWritable := 'False'} : "KP8 Driver: Button States";
+   END_VAR
+   VAR DB_SPECIFIC
+      retState : "KP8 Driver: Feedback Data";
    END_VAR
 
    VAR_TEMP 
       color : String;
       draw : Bool;
       pBtn : Int;
+      retPress : "KP8 Driver: Feedback Data";
    END_VAR
 
    VAR CONSTANT 
@@ -162,15 +279,15 @@ VERSION : 2.0
 
 
 BEGIN
-	REGION "ON RESET REQUEST"
+	(* REGION "ON RESET REQUEST"
 	    IF #reset THEN
 	        
 	        REGION "FOR EACH BUTTON"
 	            FOR #pBtn := 0 TO 7 DO
 	                
 	                REGION "RESET STATES"
-	                    #old.btnStates.btn[#pBtn] := 0;
-	                    #btnStates.btn[#pBtn] := 0;
+	                    #old.btnState.btn[#pBtn] := 0;
+	                    #Static_1.btn[#pBtn] := 0;
 	                    #colorMask := #initBtnColors;
 	                END_REGION
 	
@@ -182,10 +299,10 @@ BEGIN
 	        END_REGION
 	
 	    END_IF;
-	END_REGION
+	END_REGION *)
 	
-	REGION "ON CHANGE IN PARAMETER SET"
-	    IF #btnParams <> #old.btnParams THEN
+	(* REGION "ON CHANGE IN PARAMETER SET"
+	    IF #btnParams <> #old.btnParam THEN
 	        
 	        REGION "FOR EACH BUTTON"
 	            FOR #pBtn := 0 TO 7 DO
@@ -195,13 +312,13 @@ BEGIN
 	                END_REGION
 	
 	                REGION "BUTTON COLOR FOR OFF STATE"
-	                    IF #btnParams.btn[#pBtn].activate AND NOT #btnStates.btn[#pBtn] THEN
+	                    IF #btnParams.btn[#pBtn].activate AND NOT #Static_1.btn[#pBtn] THEN
 	                        #color := #btnParams.btn[#pBtn]."color off";
 	                    END_IF;
 	                END_REGION
 	
 	                REGION "BUTTON COLOR FOR ON STATE"
-	                    IF #btnParams.btn[#pBtn].activate AND #btnStates.btn[#pBtn] THEN
+	                    IF #btnParams.btn[#pBtn].activate AND #Static_1.btn[#pBtn] THEN
 	                        #color := #btnParams.btn[#pBtn]."color on 1";
 	                    END_IF;
 	                END_REGION
@@ -217,7 +334,7 @@ BEGIN
 	                END_REGION
 	                
 	                REGION "DRAW COLOR"
-	                    "KP8 Driver: Button Color"(btnColor := #colorMask,
+	                    "kp8Driver.getBtnColor"(btnColor := #colorMask,
 	                                               btnNum := #pBtn,
 	                                               lblColor := #color);
 	                END_REGION
@@ -226,51 +343,60 @@ BEGIN
 	        END_REGION
 	        
 	    END_IF;
-	END_REGION
+	END_REGION *)
 	
-	REGION "BUTTON STATES"
+	REGION "FEEDBACK"
 	    
-	    REGION "ON BUTTON PRESS"
-	        IF #kp8DI <> #old.kp8DI THEN
+	    REGION "SET PRESS FEEDBACK"
+	        SCATTER(IN := #kp8DI.%B1,
+	                OUT => #btnPress.btn);
+	        "kp8Driver.feedback"(signal := #btnPress,
+	                             oldSignal := #old.btnPress,
+	                             feedback := #retPress);
+	    END_REGION
 	            
-	            REGION "TOGGLE STATE"
-	                "KP8 Driver: Toggle Button State"(kp8DI := #kp8DI,
-	                                                  btnStates := #btnStates);
-	            END_REGION
+	    REGION "MANAGE BUTTON STATES"
+	        "kp8Driver.state"(press := #retPress,
+	                          btnParams := #btnParams,
+	                          state := #retState);
+	    END_REGION
 	            
-	        END_IF;
+	    REGION "SET STATE FEEDBACK"
+	        "kp8Driver.feedback"(signal := #retState.acutal,
+	                             oldSignal := #old.btnState,
+	                             feedback := #retState);
 	    END_REGION
 	    
 	END_REGION
 	
-	REGION "ANIMATE BUTTONS"
+	(* REGION "ANIMATE BUTTONS"
 	    
 	    REGION "FOR EACH BUTTON"
 	        FOR #pBtn := 0 TO 7 DO
 	            
 	            REGION "ON CHANGE IN STATE TO 'ON'" 
-	                IF #btnStates.btn[#pBtn] <> NOT #old.btnStates.btn[#pBtn] THEN
+	                IF #Static_1.btn[#pBtn] <> NOT #old.btnState.btn[#pBtn] THEN
 	                    #color := #btnParams.btn[#pBtn]."color on 1";
 	                    #draw := true;
 	                END_IF;
 	            END_REGION
 	            
 	            REGION "ON CHANGE IN STATE TO 'OFF'" 
-	                IF NOT #btnStates.btn[#pBtn] <> #old.btnStates.btn[#pBtn] THEN
+	                IF NOT #Static_1.btn[#pBtn] <> #old.btnState.btn[#pBtn] THEN
 	                    #color := #btnParams.btn[#pBtn]."color off";
 	                    #draw := true;
 	                END_IF;
 	            END_REGION
 	            
 	            REGION "FLASH COLOR 1"
-	                IF NOT #btnParams.btn[#pBtn].flash AND #old.btnParams.btn[#pBtn].flash THEN
+	                IF NOT #btnParams.btn[#pBtn].flash AND #old.btnParam.btn[#pBtn].flash THEN
 	                    #color := #btnParams.btn[#pBtn]."color on 1";
 	                    #draw := true;
 	                END_IF;
 	            END_REGION
 	            
 	            REGION "FLASH COLOR 2"
-	                IF #btnParams.btn[#pBtn].flash AND NOT #old.btnParams.btn[#pBtn].flash THEN
+	                IF #btnParams.btn[#pBtn].flash AND NOT #old.btnParam.btn[#pBtn].flash THEN
 	                    #color := #btnParams.btn[#pBtn]."color on 2";
 	                    #draw := true;
 	                END_IF;
@@ -279,7 +405,7 @@ BEGIN
 	            REGION "DRAW TO BUTTON"
 	                IF #draw THEN
 	                    #draw := FALSE;
-	                    "KP8 Driver: Button Color"(btnColor := #colorMask,
+	                    "kp8Driver.getBtnColor"(btnColor := #colorMask,
 	                                               btnNum := #pBtn,
 	                                               lblColor := #color);
 	                END_IF;
@@ -288,17 +414,18 @@ BEGIN
 	        END_FOR;
 	    END_REGION
 	    
-	END_REGION
+	END_REGION *)
 	
 	REGION "CHANGE DETECTION"
-	    #old.btnParams := #btnParams;
-	    #old.btnStates := #btnStates;
-	    #old.kp8DI := #kp8DI;
+	    #old.btnParam := #btnParams;
+	    #old.btnPress := #btnPress;
+	    #old.btnState := #retState.acutal;
 	END_REGION
 	
 	REGION "OUTPUT"
 	    #kp8DQ := #colorMask;
-	    #statesOut := #btnStates;
+	    #press := #retPress;
+	    #state := #retState;
 	END_REGION
 END_FUNCTION_BLOCK
 
