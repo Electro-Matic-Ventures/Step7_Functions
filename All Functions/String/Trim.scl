@@ -1,27 +1,31 @@
-﻿FUNCTION "Trim" : WString
+﻿FUNCTION "Trim" : String
+TITLE = Trim
 { S7_Optimized_Access := 'TRUE' }
-VERSION : 0.1
+AUTHOR : Machado
+FAMILY : 'String'
+VERSION : 1.0
+//removes leading and trailing whitespace from input string
    VAR_INPUT 
-      "wString" : WString;
+      "string" : String;
    END_VAR
 
    VAR_TEMP 
-      ret : WString;
+      ret : String;
    END_VAR
 
    VAR CONSTANT 
-      space : WString := WSTRING#' ';
+      space : String := ' ';
    END_VAR
 
 
 BEGIN
-	#ret := #wString;
-	IF LEFT(IN := #ret, L := 1) = #space THEN
+	#ret := #string;
+	WHILE LEFT(IN := #ret, L := 1) = #space DO
 	    #ret := RIGHT(IN := #ret, L := LEN(#ret) - 1);
-	END_IF;
-	IF RIGHT(IN := #ret, L := 1) = #space THEN
+	END_WHILE;
+	WHILE RIGHT(IN := #ret, L := 1) = #space DO
 	    #ret := LEFT(IN := #ret, L := LEN(#ret) - 1);
-	END_IF;
+	END_WHILE;
 	#Trim := #ret;
 END_FUNCTION
 

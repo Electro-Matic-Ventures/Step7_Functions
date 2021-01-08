@@ -1,0 +1,733 @@
+﻿FUNCTION "Is Symbol" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+//returns false if the input character is a number or letter of either case
+   VAR_INPUT 
+      character : Char;
+   END_VAR
+
+   VAR_TEMP 
+      ret : Bool;
+   END_VAR
+
+   VAR CONSTANT 
+      "0" : Int := 48;
+      "9" : Int := 57;
+      A : Int := 65;
+      Z : Int := 90;
+      _a : Int := 97;
+      _z : Int := 122;
+   END_VAR
+
+
+BEGIN
+	CASE CHAR_TO_INT(#character) OF
+	        #"0"..#"9",#A..#Z,#_a..#_z:
+	        #ret := FALSE;
+	    ELSE  // Statement section ELSE
+	        #ret := TRUE;
+	END_CASE;
+	#"Is Symbol" := #ret;
+END_FUNCTION
+
+TYPE "String Buffer"
+VERSION : 0.1
+   STRUCT
+      me : Array[0..9] of String [10];
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Elements as Strings"
+VERSION : 0.1
+   STRUCT
+      year : String[4];
+      month : String[2];
+      day : String[2];
+      hour : String[2];
+      minute : String[2];
+      second : String[2];
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "Format Code as Int" : Int
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      formatCode : String;
+   END_VAR
+
+
+BEGIN
+	#"Format Code as Int" := CHAR_TO_INT(STRING_TO_CHAR(LEFT(IN := #formatCode, L := 1)));
+END_FUNCTION
+
+FUNCTION "Delimeter Position" : Int
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      format : String;
+   END_VAR
+
+   VAR_TEMP 
+      _format : String;
+      ret : Int;
+      pString : Int;
+   END_VAR
+
+
+BEGIN
+	#_format := #format;
+	#ret := -1;
+	#pString := 1;
+	WHILE NOT "Is Symbol"(STRING_TO_CHAR(LEFT(IN := #_format, L := 1))) AND #pString < LEN(#format) DO
+	    #_format := RIGHT(IN := #_format, L := LEN(#_format) - 1);
+	    #pString += 1;
+	END_WHILE; 
+	IF #pString < LEN(#format) THEN
+	    #ret := #pString;
+	END_IF;
+	IF #pString = LEN(#format) AND "Is Symbol"(STRING_TO_CHAR(LEFT(IN := #_format, L := 1))) THEN
+	    #ret := #pString;
+	END_IF;
+	#"Delimeter Position" := #ret;
+	
+END_FUNCTION
+
+FUNCTION "Trim" : String
+TITLE = Trim
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Machado
+FAMILY : 'String'
+VERSION : 1.0
+//removes leading and trailing whitespace from input string
+   VAR_INPUT 
+      "string" : String;
+   END_VAR
+
+   VAR_TEMP 
+      ret : String;
+   END_VAR
+
+   VAR CONSTANT 
+      space : String := ' ';
+   END_VAR
+
+
+BEGIN
+	#ret := #string;
+	WHILE LEFT(IN := #ret, L := 1) = #space DO
+	    #ret := RIGHT(IN := #ret, L := LEN(#ret) - 1);
+	END_WHILE;
+	WHILE RIGHT(IN := #ret, L := 1) = #space DO
+	    #ret := LEFT(IN := #ret, L := LEN(#ret) - 1);
+	END_WHILE;
+	#Trim := #ret;
+END_FUNCTION
+
+FUNCTION "Add Leading" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "Leading Character" : Char;
+      "Desired Length" : USInt;
+      "String" : String;
+   END_VAR
+
+   VAR_TEMP 
+      Length : Int;
+      "String Box" : String;
+   END_VAR
+
+
+BEGIN
+	#"String Box" := #String;
+	#Length := LEN(#"String Box");
+	
+	WHILE #Length < #"Desired Length" DO
+	    #"String Box" := CONCAT_STRING(IN1 := #"Leading Character",
+	                                    IN2 := #"String Box");
+	    #Length := LEN(#"String Box");
+	END_WHILE;
+	
+	#"Add Leading" := #"String Box";
+END_FUNCTION
+
+TYPE "Element Lengths"
+VERSION : 0.1
+   STRUCT
+      year : Int;
+      month : Int;
+      day : Int;
+      hour : Int;
+      minute : Int;
+      second : Int;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Byte Buffer"
+VERSION : 0.1
+   STRUCT
+      me : Array[0..7] of Byte;
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "Strip Sign" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "string" : String;
+   END_VAR
+
+   VAR_TEMP 
+      Length : Int;
+      "String Box" : String;
+      "Test Character" : String;
+   END_VAR
+
+   VAR CONSTANT 
+      "+" : Char := '+';
+      "-" : Char := '-';
+   END_VAR
+
+
+BEGIN
+	#"String Box" := #string;
+	#"Test Character" := LEFT_STRING(IN := #"String Box",
+	                                  L := 1);
+	IF #"Test Character" = #"+" OR #"Test Character" = #"-" THEN
+	    #Length := LEN(#"String Box");
+	    #"String Box" := RIGHT_STRING(IN := #"String Box", L := #Length - 1);
+	    
+	END_IF;
+	#"Strip Sign" := #"String Box";
+END_FUNCTION
+
+FUNCTION "Select Element by Format Code" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      formatCode : String;
+      "d&tStrings" : "Elements as Strings";
+   END_VAR
+
+   VAR_OUTPUT 
+      "error message" : String;
+   END_VAR
+
+   VAR_TEMP 
+      ret : String;
+   END_VAR
+
+   VAR CONSTANT 
+      Y : Int := 89;
+      M : Int := 77;
+      D : Int := 68;
+      H : Int := 72;
+      I : Int := 73;
+      S : Int := 83;
+   END_VAR
+
+
+BEGIN
+	CASE "Format Code as Int"(#formatCode) OF
+	    #Y:
+	        #ret := #"d&tStrings".year;
+	    #M:
+	        #ret := #"d&tStrings".month;
+	    #D:
+	        #ret := #"d&tStrings".day;
+	    #H:
+	        #ret := #"d&tStrings".hour;
+	    #I:
+	        #ret := #"d&tStrings".minute;
+	    #S:
+	        #ret := #"d&tStrings".second;
+	    ELSE
+	        #"error message" := 'use y for year, m for month, d for day, h for hour, i for minute, or s for second';
+	END_CASE;
+	#"Select Element by Format Code" := #ret;
+END_FUNCTION
+
+FUNCTION "Add Leading Characters to Elements" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      elementLengths : "Element Lengths";
+      elementsAsStringArray : "String Buffer";
+   END_VAR
+
+   VAR_OUTPUT 
+      elementsAsStrings : "Elements as Strings";
+      "error message" : String;
+   END_VAR
+
+   VAR_TEMP 
+      ret : "Elements as Strings";
+   END_VAR
+
+
+BEGIN
+	CASE #elementLengths.year OF
+	    0:
+	        #ret.year := '';
+	    2:
+	        #ret.year := "Add Leading"("Leading Character" := '0',
+	                                   "Desired Length" := 2,
+	                                   "String" := #elementsAsStringArray.me[0]);
+	    4:
+	        #ret.year := CONCAT_STRING(IN1 := '20',
+	                                   IN2 := "Add Leading"("Leading Character" := '0',
+	                                                        "Desired Length" := 2,
+	                                                        "String" := #elementsAsStringArray.me[0]));
+	    ELSE
+	        #"error message" := 'invalid year format code';
+	END_CASE;
+	CASE #elementLengths.month OF
+	    0:
+	        #ret.month := '';
+	    1:
+	        #ret.month := #elementsAsStringArray.me[1];
+	    2:
+	        #ret.month := "Add Leading"("Leading Character" := '0',
+	                                    "Desired Length" := 2,
+	                                    "String" := #elementsAsStringArray.me[1]);
+	    ELSE
+	        #"error message" := 'invalid month format code';
+	END_CASE;
+	CASE #elementLengths.day OF
+	    0:
+	        #ret.day := '';
+	    1:
+	        #ret.day := #elementsAsStringArray.me[2];
+	    2:
+	        #ret.day := "Add Leading"("Leading Character" := '0',
+	                                  "Desired Length" := 2,
+	                                  "String" := #elementsAsStringArray.me[2]);
+	    ELSE
+	        #"error message" := 'invalid day format code';
+	END_CASE;
+	CASE #elementLengths.hour OF
+	    0:
+	        #ret.hour := '';
+	    1:
+	        #ret.hour := #elementsAsStringArray.me[3];
+	    2:
+	        #ret.hour := "Add Leading"("Leading Character" := '0',
+	                                   "Desired Length" := 2,
+	                                   "String" := #elementsAsStringArray.me[3]);
+	    ELSE
+	        #"error message" := 'invalid hour format code';
+	END_CASE;
+	CASE #elementLengths.minute OF
+	    0:
+	        #ret.minute := '';
+	    1:
+	        #ret.minute := #elementsAsStringArray.me[4];
+	    2:
+	        #ret.minute := "Add Leading"("Leading Character" := '0',
+	                                     "Desired Length" := 2,
+	                                     "String" := #elementsAsStringArray.me[4]);
+	    ELSE
+	        #"error message" := 'invalid minute format code';
+	END_CASE;
+	CASE #elementLengths.second OF
+	    0:
+	        #ret.second := '';
+	    1:
+	        #ret.second := #elementsAsStringArray.me[5];
+	    2:
+	        #ret.second := "Add Leading"("Leading Character" := '0',
+	                                    "Desired Length" := 2,
+	                                    "String" := #elementsAsStringArray.me[5]);
+	    ELSE
+	        #"error message" := 'invalid second format code';
+	END_CASE;
+	#elementsAsStrings := #ret;
+END_FUNCTION
+
+FUNCTION "Parse Date_And_Time Elements" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "date & Time" : Date_And_Time;
+   END_VAR
+
+   VAR_OUTPUT 
+      "elements as string array" : "String Buffer";
+   END_VAR
+
+   VAR_TEMP 
+      byteBuffer : "Byte Buffer";
+      pos : DInt;
+      ret : "String Buffer";
+      _ret_val : Int;
+      pBuffer : Int;
+   END_VAR
+
+
+BEGIN
+	#_ret_val := Serialize(SRC_VARIABLE := #"date & Time",
+	                       DEST_ARRAY => #byteBuffer.me,
+	                       POS := #pos);
+	FOR #pBuffer := 0 TO 7 DO
+	    #ret.me[#pBuffer] := "Trim"("Strip Sign"(INT_TO_STRING(BCD16_TO_INT(BYTE_TO_WORD(#byteBuffer.me[#pBuffer])))));
+	END_FOR;
+	#"elements as string array" := #ret;
+	
+END_FUNCTION
+
+FUNCTION "Resolve Element Lengths" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      formatCodes : "String Buffer";
+   END_VAR
+
+   VAR_OUTPUT 
+      elementLengths : "Element Lengths";
+      "error message" : String;
+   END_VAR
+
+   VAR_TEMP 
+      code : String;
+      pCode : Int;
+      errorFlag : Bool;
+   END_VAR
+
+
+BEGIN
+	#errorFlag := TRUE;
+	FOR #pCode := 0 TO 9 DO
+	    #code := #formatCodes.me[#pCode];
+	    IF #code = '' THEN
+	        RETURN;
+	    END_IF;
+	    IF FIND(IN1 := #code, IN2 := 'Y') <> 0 THEN
+	        #elementLengths.year := LEN(#code);
+	        #errorFlag := FALSE;
+	        GOTO NEXT;
+	    END_IF;
+	    IF FIND(IN1 := #code, IN2 := 'M') <> 0 THEN
+	        #elementLengths.month := LEN(#code);
+	        #errorFlag := FALSE;
+	        GOTO NEXT;
+	    END_IF;
+	    IF FIND(IN1 := #code, IN2 := 'D') <> 0 THEN
+	        #elementLengths.day := LEN(#code);
+	        #errorFlag := FALSE;
+	        GOTO NEXT;
+	    END_IF;
+	    IF FIND(IN1 := #code, IN2 := 'H') <> 0 THEN
+	        #elementLengths.hour := LEN(#code);
+	        #errorFlag := FALSE;
+	        GOTO NEXT;
+	    END_IF;
+	    IF FIND(IN1 := #code, IN2 := 'I') <> 0 THEN
+	        #elementLengths.minute := LEN(#code);
+	        #errorFlag := FALSE;
+	        GOTO NEXT;
+	    END_IF;
+	    IF FIND(IN1 := #code, IN2 := 'S') <> 0 THEN
+	        #elementLengths.second := LEN(#code);
+	        #errorFlag := FALSE;
+	        GOTO NEXT;
+	    END_IF;
+	NEXT:
+	    ;
+	END_FOR;
+	IF #errorFlag THEN
+	    #"error message" := 'no valid format code found';
+	END_IF;
+END_FUNCTION
+
+FUNCTION "Parse Format" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      format : String;
+   END_VAR
+
+   VAR_OUTPUT 
+      codes : "String Buffer";
+      delimeters : "String Buffer";
+   END_VAR
+
+   VAR_TEMP 
+      _delimeters : "String Buffer";
+      _codes : "String Buffer";
+      pos : Int;
+      _format : String;
+      pArray : Int;
+      _ret_val : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      arraySize : Int := 9;
+      stringLength : Int := 10;
+   END_VAR
+
+
+BEGIN
+	#_format := #format;
+	#pos := "Delimeter Position"(#_format);
+	WHILE #pos <> -1 DO
+	    #_delimeters.me[#pArray] := MID(IN := #_format, L := 1, P := #pos);
+	    #_codes.me[#pArray] := LEFT(IN := #_format, L := #pos - 1);
+	    #pArray += 1;
+	    #_format := RIGHT(IN := #_format, L := LEN(#_format) - #pos);
+	    #pos := "Delimeter Position"(#_format);
+	END_WHILE;
+	#_codes.me[#pArray] := #_format;
+	#pArray += 1;
+	#delimeters := #_delimeters;
+	#codes := #_codes;
+	
+END_FUNCTION
+
+FUNCTION "Is Format Character" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      character : Char;
+   END_VAR
+
+   VAR_TEMP 
+      ret : Bool;
+   END_VAR
+
+   VAR CONSTANT 
+      Y : Int := 89;   // code for year
+      M : Int := 77;   // code for month
+      D : Int := 68;   // code for day
+      H : Int := 72;   // code for hour
+      I : Int := 73;   // code for minute
+      S : Int := 83;   // code for second
+   END_VAR
+
+
+BEGIN
+	CASE CHAR_TO_INT(#character) OF
+	    #Y,#M,#D,#H,#I,#S:
+	        #ret := TRUE;
+	    ELSE  
+	        #ret := FALSE;
+	END_CASE;
+	#"Is Format Character" := #ret;
+END_FUNCTION
+
+FUNCTION "Upper" : String
+TITLE = Upper
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Machado
+FAMILY : 'String'
+VERSION : 1.0
+//returns the input string converted to all upper case
+   VAR_INPUT 
+      "string" : String;
+   END_VAR
+
+   VAR_TEMP 
+      "type" : Bool;
+      stringBox : String;
+      status : Int;
+      charArr : Array[0..255] of Char;
+      cntChar : UInt;
+      pChar : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      asciiLow : Char := 'a';
+      asciiHigh : Char := 'z';
+      asciiCaseOffset : Int := 32;
+   END_VAR
+
+
+BEGIN
+	Strg_TO_Chars(Strg := #string,
+	              pChars := 0,
+	              Cnt => #cntChar,
+	              Chars := #charArr);
+	
+	FOR #pChar := 0 TO UINT_TO_INT(#cntChar) - 1 DO
+	    IF #asciiLow <= #charArr[#pChar] AND #charArr[#pChar] <= #asciiHigh THEN
+	        #charArr[#pChar] := INT_TO_CHAR(CHAR_TO_INT(#charArr[#pChar]) - #asciiCaseOffset);
+	    END_IF;
+	END_FOR;
+	
+	Chars_TO_Strg(Chars := #charArr,
+	              pChars := 0,
+	              Cnt := #cntChar,
+	              Strg => #stringBox);
+	
+	#Upper := #stringBox;
+END_FUNCTION
+
+FUNCTION "Resolve Format" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      format : String;   // y=year, m=month, d=day, h=hour, i=minute, s=second. multiple characters for leading digits. case insensitive.
+   END_VAR
+
+   VAR_OUTPUT 
+      "error message" : String;
+      formatCodes : "String Buffer";
+      delimeters : "String Buffer";
+   END_VAR
+
+   VAR_TEMP 
+      _format : String;
+      retError : String;
+      posDelimeter : Int;
+   END_VAR
+
+
+BEGIN
+	#_format := "Trim"("Upper"(#format));
+	IF NOT "Is Format Character"(STRING_TO_CHAR(LEFT(IN := #_format, L := 1))) THEN
+	    #"error message" := 'leading character not y, m, d, h, i, or s';
+	    RETURN;
+	END_IF;
+	#posDelimeter := "Delimeter Position"(#format);
+	IF #posDelimeter < 2 AND #posDelimeter <> -1 THEN
+	    #"error message" := 'leading character is a delimiter';
+	    RETURN;
+	END_IF;
+	"Parse Format"(format := #_format,
+	               codes => #formatCodes,
+	               delimeters => #delimeters);
+END_FUNCTION
+
+FUNCTION "Elements to Strings" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "date & time" : Date_And_Time;
+      formatCodes : "String Buffer";
+   END_VAR
+
+   VAR_OUTPUT 
+      "date & time as string" : "Elements as Strings";
+      "error message" : String;
+   END_VAR
+
+   VAR_TEMP 
+      elementLengths : "Element Lengths";
+      elementsAsStringArray : "String Buffer";
+      pElement : Int;
+      ret : "Elements as Strings";
+      stringBox : String;
+      retErr : String;
+   END_VAR
+
+
+BEGIN
+	"Resolve Element Lengths"(formatCodes := #formatCodes,
+	                          elementLengths => #elementLengths,
+	                          "error message"=>#retErr);
+	IF #retErr <> '' THEN
+	    RETURN;
+	END_IF;
+	"Parse Date_And_Time Elements"("date & Time" := #"date & time",
+	                               "elements as string array" => #elementsAsStringArray);
+	"Add Leading Characters to Elements"(elementLengths := #elementLengths,
+	                                     elementsAsStringArray := #elementsAsStringArray,
+	                                     elementsAsStrings => #ret,
+	                                     "error message" => #retErr);
+	#"date & time as string" := #ret;
+	#"error message" := #retErr;
+END_FUNCTION
+
+FUNCTION "Format Output" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      formatCodes : "String Buffer";
+      delimeters : "String Buffer";
+      "d&tStrings" : "Elements as Strings";
+   END_VAR
+
+   VAR_OUTPUT 
+      "date & time as string" : String;
+      "error message" : String;
+   END_VAR
+
+   VAR_TEMP 
+      pCodes : Int;
+      ret : String;
+      retError : String;
+   END_VAR
+
+
+BEGIN
+	FOR #pCodes := 0 TO 9 DO
+	    IF #formatCodes.me[#pCodes] <> '' THEN
+	        #ret := CONCAT_STRING(IN1 := #ret,
+	                              IN2 := "Select Element by Format Code"(formatCode := #formatCodes.me[#pCodes],
+	                                                                     "d&tStrings" := #"d&tStrings",
+	                                                                     "error message" => #retError));
+	    END_IF;
+	    IF #retError <> '' THEN
+	        RETURN;
+	    END_IF;
+	    IF #delimeters.me[#pCodes] <> '' THEN
+	        #ret := CONCAT_STRING(IN1 := #ret,
+	                              IN2 := #delimeters.me[#pCodes]);
+	    END_IF;
+	END_FOR;
+	#"date & time as string" := #ret;
+	#"error message" := #retError;
+	
+END_FUNCTION
+
+FUNCTION "Date_And_Time to String" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "date & time" : Date_And_Time;
+      format : String;   // y=year, m=month, d=day, h=hour, i=minute, s=second. multiple characters for leading digits. case insensitive.
+   END_VAR
+
+   VAR_OUTPUT 
+      "error message" : String;
+      "date & time as string" : String;
+   END_VAR
+
+   VAR_TEMP 
+      formatCodes : "String Buffer";
+      delimeters : "String Buffer";
+      "d&tStrings" : "Elements as Strings";
+      retError : String;
+      "retD&T" : String;
+   END_VAR
+
+
+BEGIN
+	"Resolve Format"(format := #format,
+	                 "error message" => #retError,
+	                 formatCodes => #formatCodes,
+	                 delimeters => #delimeters);
+	IF #retError <> '' THEN
+	    #"error message" := #retError;
+	    RETURN;
+	END_IF;
+	"Elements to Strings"("date & time":=#"date & time",
+	                      formatCodes:=#formatCodes,
+	                      "date & time as string"=>#"d&tStrings",
+	                      "error message"=>#retError);
+	IF #retError <> '' THEN
+	    #"error message" := #retError;
+	    RETURN;
+	END_IF;
+	"Format Output"(formatCodes:=#formatCodes,
+	               delimeters:=#delimeters,
+	               "d&tStrings":=#"d&tStrings",
+	               "date & time as string"=>#"retD&T",
+	               "error message"=>#retError);
+	#"date & time as string" := #"retD&T";
+END_FUNCTION
+

@@ -1,0 +1,121 @@
+﻿TYPE "Elements as Strings"
+VERSION : 0.1
+   STRUCT
+      year : String[4];
+      month : String[2];
+      day : String[2];
+      hour : String[2];
+      minute : String[2];
+      second : String[2];
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "Format Code as Int" : Int
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      formatCode : String;
+   END_VAR
+
+
+BEGIN
+	#"Format Code as Int" := CHAR_TO_INT(STRING_TO_CHAR(LEFT(IN := #formatCode, L := 1)));
+END_FUNCTION
+
+TYPE "String Buffer"
+VERSION : 0.1
+   STRUCT
+      me : Array[0..9] of String [10];
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "Select Element by Format Code" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      formatCode : String;
+      "d&tStrings" : "Elements as Strings";
+   END_VAR
+
+   VAR_OUTPUT 
+      "error message" : String;
+   END_VAR
+
+   VAR_TEMP 
+      ret : String;
+   END_VAR
+
+   VAR CONSTANT 
+      Y : Int := 89;
+      M : Int := 77;
+      D : Int := 68;
+      H : Int := 72;
+      I : Int := 73;
+      S : Int := 83;
+   END_VAR
+
+
+BEGIN
+	CASE "Format Code as Int"(#formatCode) OF
+	    #Y:
+	        #ret := #"d&tStrings".year;
+	    #M:
+	        #ret := #"d&tStrings".month;
+	    #D:
+	        #ret := #"d&tStrings".day;
+	    #H:
+	        #ret := #"d&tStrings".hour;
+	    #I:
+	        #ret := #"d&tStrings".minute;
+	    #S:
+	        #ret := #"d&tStrings".second;
+	    ELSE
+	        #"error message" := 'use y for year, m for month, d for day, h for hour, i for minute, or s for second';
+	END_CASE;
+	#"Select Element by Format Code" := #ret;
+END_FUNCTION
+
+FUNCTION "Format Output" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      formatCodes : "String Buffer";
+      delimeters : "String Buffer";
+      "d&tStrings" : "Elements as Strings";
+   END_VAR
+
+   VAR_OUTPUT 
+      "date & time as string" : String;
+      "error message" : String;
+   END_VAR
+
+   VAR_TEMP 
+      pCodes : Int;
+      ret : String;
+      retError : String;
+   END_VAR
+
+
+BEGIN
+	FOR #pCodes := 0 TO 9 DO
+	    IF #formatCodes.me[#pCodes] <> '' THEN
+	        #ret := CONCAT_STRING(IN1 := #ret,
+	                              IN2 := "Select Element by Format Code"(formatCode := #formatCodes.me[#pCodes],
+	                                                                     "d&tStrings" := #"d&tStrings",
+	                                                                     "error message" => #retError));
+	    END_IF;
+	    IF #retError <> '' THEN
+	        RETURN;
+	    END_IF;
+	    IF #delimeters.me[#pCodes] <> '' THEN
+	        #ret := CONCAT_STRING(IN1 := #ret,
+	                              IN2 := #delimeters.me[#pCodes]);
+	    END_IF;
+	END_FOR;
+	#"date & time as string" := #ret;
+	#"error message" := #retError;
+	
+END_FUNCTION
+

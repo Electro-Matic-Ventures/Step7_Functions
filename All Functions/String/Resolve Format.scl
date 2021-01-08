@@ -1,0 +1,261 @@
+﻿FUNCTION "Is Symbol" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+//returns false if the input character is a number or letter of either case
+   VAR_INPUT 
+      character : Char;
+   END_VAR
+
+   VAR_TEMP 
+      ret : Bool;
+   END_VAR
+
+   VAR CONSTANT 
+      "0" : Int := 48;
+      "9" : Int := 57;
+      A : Int := 65;
+      Z : Int := 90;
+      _a : Int := 97;
+      _z : Int := 122;
+   END_VAR
+
+
+BEGIN
+	CASE CHAR_TO_INT(#character) OF
+	        #"0"..#"9",#A..#Z,#_a..#_z:
+	        #ret := FALSE;
+	    ELSE  // Statement section ELSE
+	        #ret := TRUE;
+	END_CASE;
+	#"Is Symbol" := #ret;
+END_FUNCTION
+
+TYPE "String Buffer"
+VERSION : 0.1
+   STRUCT
+      me : Array[0..9] of String [10];
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "Delimeter Position" : Int
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      format : String;
+   END_VAR
+
+   VAR_TEMP 
+      _format : String;
+      ret : Int;
+      pString : Int;
+   END_VAR
+
+
+BEGIN
+	#_format := #format;
+	#ret := -1;
+	#pString := 1;
+	WHILE NOT "Is Symbol"(STRING_TO_CHAR(LEFT(IN := #_format, L := 1))) AND #pString < LEN(#format) DO
+	    #_format := RIGHT(IN := #_format, L := LEN(#_format) - 1);
+	    #pString += 1;
+	END_WHILE; 
+	IF #pString < LEN(#format) THEN
+	    #ret := #pString;
+	END_IF;
+	IF #pString = LEN(#format) AND "Is Symbol"(STRING_TO_CHAR(LEFT(IN := #_format, L := 1))) THEN
+	    #ret := #pString;
+	END_IF;
+	#"Delimeter Position" := #ret;
+	
+END_FUNCTION
+
+FUNCTION "Upper" : String
+TITLE = Upper
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Machado
+FAMILY : 'String'
+VERSION : 1.0
+//returns the input string converted to all upper case
+   VAR_INPUT 
+      "string" : String;
+   END_VAR
+
+   VAR_TEMP 
+      "type" : Bool;
+      stringBox : String;
+      status : Int;
+      charArr : Array[0..255] of Char;
+      cntChar : UInt;
+      pChar : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      asciiLow : Char := 'a';
+      asciiHigh : Char := 'z';
+      asciiCaseOffset : Int := 32;
+   END_VAR
+
+
+BEGIN
+	Strg_TO_Chars(Strg := #string,
+	              pChars := 0,
+	              Cnt => #cntChar,
+	              Chars := #charArr);
+	
+	FOR #pChar := 0 TO UINT_TO_INT(#cntChar) - 1 DO
+	    IF #asciiLow <= #charArr[#pChar] AND #charArr[#pChar] <= #asciiHigh THEN
+	        #charArr[#pChar] := INT_TO_CHAR(CHAR_TO_INT(#charArr[#pChar]) - #asciiCaseOffset);
+	    END_IF;
+	END_FOR;
+	
+	Chars_TO_Strg(Chars := #charArr,
+	              pChars := 0,
+	              Cnt := #cntChar,
+	              Strg => #stringBox);
+	
+	#Upper := #stringBox;
+END_FUNCTION
+
+FUNCTION "Is Format Character" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      character : Char;
+   END_VAR
+
+   VAR_TEMP 
+      ret : Bool;
+   END_VAR
+
+   VAR CONSTANT 
+      Y : Int := 89;   // code for year
+      M : Int := 77;   // code for month
+      D : Int := 68;   // code for day
+      H : Int := 72;   // code for hour
+      I : Int := 73;   // code for minute
+      S : Int := 83;   // code for second
+   END_VAR
+
+
+BEGIN
+	CASE CHAR_TO_INT(#character) OF
+	    #Y,#M,#D,#H,#I,#S:
+	        #ret := TRUE;
+	    ELSE  
+	        #ret := FALSE;
+	END_CASE;
+	#"Is Format Character" := #ret;
+END_FUNCTION
+
+FUNCTION "Trim" : String
+TITLE = Trim
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Machado
+FAMILY : 'String'
+VERSION : 1.0
+//removes leading and trailing whitespace from input string
+   VAR_INPUT 
+      "string" : String;
+   END_VAR
+
+   VAR_TEMP 
+      ret : String;
+   END_VAR
+
+   VAR CONSTANT 
+      space : String := ' ';
+   END_VAR
+
+
+BEGIN
+	#ret := #string;
+	WHILE LEFT(IN := #ret, L := 1) = #space DO
+	    #ret := RIGHT(IN := #ret, L := LEN(#ret) - 1);
+	END_WHILE;
+	WHILE RIGHT(IN := #ret, L := 1) = #space DO
+	    #ret := LEFT(IN := #ret, L := LEN(#ret) - 1);
+	END_WHILE;
+	#Trim := #ret;
+END_FUNCTION
+
+FUNCTION "Parse Format" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      format : String;
+   END_VAR
+
+   VAR_OUTPUT 
+      codes : "String Buffer";
+      delimeters : "String Buffer";
+   END_VAR
+
+   VAR_TEMP 
+      _delimeters : "String Buffer";
+      _codes : "String Buffer";
+      pos : Int;
+      _format : String;
+      pArray : Int;
+      _ret_val : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      arraySize : Int := 9;
+      stringLength : Int := 10;
+   END_VAR
+
+
+BEGIN
+	#_format := #format;
+	#pos := "Delimeter Position"(#_format);
+	WHILE #pos <> -1 DO
+	    #_delimeters.me[#pArray] := MID(IN := #_format, L := 1, P := #pos);
+	    #_codes.me[#pArray] := LEFT(IN := #_format, L := #pos - 1);
+	    #pArray += 1;
+	    #_format := RIGHT(IN := #_format, L := LEN(#_format) - #pos);
+	    #pos := "Delimeter Position"(#_format);
+	END_WHILE;
+	#_codes.me[#pArray] := #_format;
+	#pArray += 1;
+	#delimeters := #_delimeters;
+	#codes := #_codes;
+	
+END_FUNCTION
+
+FUNCTION "Resolve Format" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      format : String;   // y=year, m=month, d=day, h=hour, i=minute, s=second. multiple characters for leading digits. case insensitive.
+   END_VAR
+
+   VAR_OUTPUT 
+      "error message" : String;
+      formatCodes : "String Buffer";
+      delimeters : "String Buffer";
+   END_VAR
+
+   VAR_TEMP 
+      _format : String;
+      retError : String;
+      posDelimeter : Int;
+   END_VAR
+
+
+BEGIN
+	#_format := "Trim"("Upper"(#format));
+	IF NOT "Is Format Character"(STRING_TO_CHAR(LEFT(IN := #_format, L := 1))) THEN
+	    #"error message" := 'leading character not y, m, d, h, i, or s';
+	    RETURN;
+	END_IF;
+	#posDelimeter := "Delimeter Position"(#format);
+	IF #posDelimeter < 2 AND #posDelimeter <> -1 THEN
+	    #"error message" := 'leading character is a delimiter';
+	    RETURN;
+	END_IF;
+	"Parse Format"(format := #_format,
+	               codes => #formatCodes,
+	               delimeters => #delimeters);
+END_FUNCTION
+

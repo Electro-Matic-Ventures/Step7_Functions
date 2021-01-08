@@ -1,0 +1,85 @@
+﻿TYPE "String Buffer"
+VERSION : 0.1
+   STRUCT
+      me : Array[0..9] of String [10];
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Element Lengths"
+VERSION : 0.1
+   STRUCT
+      year : Int;
+      month : Int;
+      day : Int;
+      hour : Int;
+      minute : Int;
+      second : Int;
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "Resolve Element Lengths" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      formatCodes : "String Buffer";
+   END_VAR
+
+   VAR_OUTPUT 
+      elementLengths : "Element Lengths";
+      "error message" : String;
+   END_VAR
+
+   VAR_TEMP 
+      code : String;
+      pCode : Int;
+      errorFlag : Bool;
+   END_VAR
+
+
+BEGIN
+	#errorFlag := TRUE;
+	FOR #pCode := 0 TO 9 DO
+	    #code := #formatCodes.me[#pCode];
+	    IF #code = '' THEN
+	        RETURN;
+	    END_IF;
+	    IF FIND(IN1 := #code, IN2 := 'Y') <> 0 THEN
+	        #elementLengths.year := LEN(#code);
+	        #errorFlag := FALSE;
+	        GOTO NEXT;
+	    END_IF;
+	    IF FIND(IN1 := #code, IN2 := 'M') <> 0 THEN
+	        #elementLengths.month := LEN(#code);
+	        #errorFlag := FALSE;
+	        GOTO NEXT;
+	    END_IF;
+	    IF FIND(IN1 := #code, IN2 := 'D') <> 0 THEN
+	        #elementLengths.day := LEN(#code);
+	        #errorFlag := FALSE;
+	        GOTO NEXT;
+	    END_IF;
+	    IF FIND(IN1 := #code, IN2 := 'H') <> 0 THEN
+	        #elementLengths.hour := LEN(#code);
+	        #errorFlag := FALSE;
+	        GOTO NEXT;
+	    END_IF;
+	    IF FIND(IN1 := #code, IN2 := 'I') <> 0 THEN
+	        #elementLengths.minute := LEN(#code);
+	        #errorFlag := FALSE;
+	        GOTO NEXT;
+	    END_IF;
+	    IF FIND(IN1 := #code, IN2 := 'S') <> 0 THEN
+	        #elementLengths.second := LEN(#code);
+	        #errorFlag := FALSE;
+	        GOTO NEXT;
+	    END_IF;
+	NEXT:
+	    ;
+	END_FOR;
+	IF #errorFlag THEN
+	    #"error message" := 'no valid format code found';
+	END_IF;
+END_FUNCTION
+

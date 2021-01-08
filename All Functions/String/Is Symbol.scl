@@ -1,0 +1,32 @@
+﻿FUNCTION "Is Symbol" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+//returns false if the input character is a number or letter of either case
+   VAR_INPUT 
+      character : Char;
+   END_VAR
+
+   VAR_TEMP 
+      ret : Bool;
+   END_VAR
+
+   VAR CONSTANT 
+      "0" : Int := 48;
+      "9" : Int := 57;
+      A : Int := 65;
+      Z : Int := 90;
+      _a : Int := 97;
+      _z : Int := 122;
+   END_VAR
+
+
+BEGIN
+	CASE CHAR_TO_INT(#character) OF
+	        #"0"..#"9",#A..#Z,#_a..#_z:
+	        #ret := FALSE;
+	    ELSE  // Statement section ELSE
+	        #ret := TRUE;
+	END_CASE;
+	#"Is Symbol" := #ret;
+END_FUNCTION
+

@@ -1,0 +1,159 @@
+﻿TYPE "Element Lengths"
+VERSION : 0.1
+   STRUCT
+      year : Int;
+      month : Int;
+      day : Int;
+      hour : Int;
+      minute : Int;
+      second : Int;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "String Buffer"
+VERSION : 0.1
+   STRUCT
+      me : Array[0..9] of String [10];
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Elements as Strings"
+VERSION : 0.1
+   STRUCT
+      year : String[4];
+      month : String[2];
+      day : String[2];
+      hour : String[2];
+      minute : String[2];
+      second : String[2];
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "Add Leading" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "Leading Character" : Char;
+      "Desired Length" : USInt;
+      "String" : String;
+   END_VAR
+
+   VAR_TEMP 
+      Length : Int;
+      "String Box" : String;
+   END_VAR
+
+
+BEGIN
+	#"String Box" := #String;
+	#Length := LEN(#"String Box");
+	
+	WHILE #Length < #"Desired Length" DO
+	    #"String Box" := CONCAT_STRING(IN1 := #"Leading Character",
+	                                    IN2 := #"String Box");
+	    #Length := LEN(#"String Box");
+	END_WHILE;
+	
+	#"Add Leading" := #"String Box";
+END_FUNCTION
+
+FUNCTION "Add Leading Characters to Elements" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      elementLengths : "Element Lengths";
+      elementsAsStringArray : "String Buffer";
+   END_VAR
+
+   VAR_OUTPUT 
+      elementsAsStrings : "Elements as Strings";
+      "error message" : String;
+   END_VAR
+
+   VAR_TEMP 
+      ret : "Elements as Strings";
+   END_VAR
+
+
+BEGIN
+	CASE #elementLengths.year OF
+	    0:
+	        #ret.year := '';
+	    2:
+	        #ret.year := "Add Leading"("Leading Character" := '0',
+	                                   "Desired Length" := 2,
+	                                   "String" := #elementsAsStringArray.me[0]);
+	    4:
+	        #ret.year := CONCAT_STRING(IN1 := '20',
+	                                   IN2 := "Add Leading"("Leading Character" := '0',
+	                                                        "Desired Length" := 2,
+	                                                        "String" := #elementsAsStringArray.me[0]));
+	    ELSE
+	        #"error message" := 'invalid year format code';
+	END_CASE;
+	CASE #elementLengths.month OF
+	    0:
+	        #ret.month := '';
+	    1:
+	        #ret.month := #elementsAsStringArray.me[1];
+	    2:
+	        #ret.month := "Add Leading"("Leading Character" := '0',
+	                                    "Desired Length" := 2,
+	                                    "String" := #elementsAsStringArray.me[1]);
+	    ELSE
+	        #"error message" := 'invalid month format code';
+	END_CASE;
+	CASE #elementLengths.day OF
+	    0:
+	        #ret.day := '';
+	    1:
+	        #ret.day := #elementsAsStringArray.me[2];
+	    2:
+	        #ret.day := "Add Leading"("Leading Character" := '0',
+	                                  "Desired Length" := 2,
+	                                  "String" := #elementsAsStringArray.me[2]);
+	    ELSE
+	        #"error message" := 'invalid day format code';
+	END_CASE;
+	CASE #elementLengths.hour OF
+	    0:
+	        #ret.hour := '';
+	    1:
+	        #ret.hour := #elementsAsStringArray.me[3];
+	    2:
+	        #ret.hour := "Add Leading"("Leading Character" := '0',
+	                                   "Desired Length" := 2,
+	                                   "String" := #elementsAsStringArray.me[3]);
+	    ELSE
+	        #"error message" := 'invalid hour format code';
+	END_CASE;
+	CASE #elementLengths.minute OF
+	    0:
+	        #ret.minute := '';
+	    1:
+	        #ret.minute := #elementsAsStringArray.me[4];
+	    2:
+	        #ret.minute := "Add Leading"("Leading Character" := '0',
+	                                     "Desired Length" := 2,
+	                                     "String" := #elementsAsStringArray.me[4]);
+	    ELSE
+	        #"error message" := 'invalid minute format code';
+	END_CASE;
+	CASE #elementLengths.second OF
+	    0:
+	        #ret.second := '';
+	    1:
+	        #ret.second := #elementsAsStringArray.me[5];
+	    2:
+	        #ret.second := "Add Leading"("Leading Character" := '0',
+	                                    "Desired Length" := 2,
+	                                    "String" := #elementsAsStringArray.me[5]);
+	    ELSE
+	        #"error message" := 'invalid second format code';
+	END_CASE;
+	#elementsAsStrings := #ret;
+END_FUNCTION
+

@@ -1,0 +1,12 @@
+﻿FUNCTION "Format Code as Int" : Int
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      formatCode : String;
+   END_VAR
+
+
+BEGIN
+	#"Format Code as Int" := CHAR_TO_INT(STRING_TO_CHAR(LEFT(IN := #formatCode, L := 1)));
+END_FUNCTION
+

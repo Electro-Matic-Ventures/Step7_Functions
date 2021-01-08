@@ -1,0 +1,31 @@
+﻿FUNCTION "Is Format Character" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      character : Char;
+   END_VAR
+
+   VAR_TEMP 
+      ret : Bool;
+   END_VAR
+
+   VAR CONSTANT 
+      Y : Int := 89;   // code for year
+      M : Int := 77;   // code for month
+      D : Int := 68;   // code for day
+      H : Int := 72;   // code for hour
+      I : Int := 73;   // code for minute
+      S : Int := 83;   // code for second
+   END_VAR
+
+
+BEGIN
+	CASE CHAR_TO_INT(#character) OF
+	    #Y,#M,#D,#H,#I,#S:
+	        #ret := TRUE;
+	    ELSE  
+	        #ret := FALSE;
+	END_CASE;
+	#"Is Format Character" := #ret;
+END_FUNCTION
+

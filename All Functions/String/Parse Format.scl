@@ -1,0 +1,116 @@
+﻿FUNCTION "Is Symbol" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+//returns false if the input character is a number or letter of either case
+   VAR_INPUT 
+      character : Char;
+   END_VAR
+
+   VAR_TEMP 
+      ret : Bool;
+   END_VAR
+
+   VAR CONSTANT 
+      "0" : Int := 48;
+      "9" : Int := 57;
+      A : Int := 65;
+      Z : Int := 90;
+      _a : Int := 97;
+      _z : Int := 122;
+   END_VAR
+
+
+BEGIN
+	CASE CHAR_TO_INT(#character) OF
+	        #"0"..#"9",#A..#Z,#_a..#_z:
+	        #ret := FALSE;
+	    ELSE  // Statement section ELSE
+	        #ret := TRUE;
+	END_CASE;
+	#"Is Symbol" := #ret;
+END_FUNCTION
+
+TYPE "String Buffer"
+VERSION : 0.1
+   STRUCT
+      me : Array[0..9] of String [10];
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "Delimeter Position" : Int
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      format : String;
+   END_VAR
+
+   VAR_TEMP 
+      _format : String;
+      ret : Int;
+      pString : Int;
+   END_VAR
+
+
+BEGIN
+	#_format := #format;
+	#ret := -1;
+	#pString := 1;
+	WHILE NOT "Is Symbol"(STRING_TO_CHAR(LEFT(IN := #_format, L := 1))) AND #pString < LEN(#format) DO
+	    #_format := RIGHT(IN := #_format, L := LEN(#_format) - 1);
+	    #pString += 1;
+	END_WHILE; 
+	IF #pString < LEN(#format) THEN
+	    #ret := #pString;
+	END_IF;
+	IF #pString = LEN(#format) AND "Is Symbol"(STRING_TO_CHAR(LEFT(IN := #_format, L := 1))) THEN
+	    #ret := #pString;
+	END_IF;
+	#"Delimeter Position" := #ret;
+	
+END_FUNCTION
+
+FUNCTION "Parse Format" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      format : String;
+   END_VAR
+
+   VAR_OUTPUT 
+      codes : "String Buffer";
+      delimeters : "String Buffer";
+   END_VAR
+
+   VAR_TEMP 
+      _delimeters : "String Buffer";
+      _codes : "String Buffer";
+      pos : Int;
+      _format : String;
+      pArray : Int;
+      _ret_val : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      arraySize : Int := 9;
+      stringLength : Int := 10;
+   END_VAR
+
+
+BEGIN
+	#_format := #format;
+	#pos := "Delimeter Position"(#_format);
+	WHILE #pos <> -1 DO
+	    #_delimeters.me[#pArray] := MID(IN := #_format, L := 1, P := #pos);
+	    #_codes.me[#pArray] := LEFT(IN := #_format, L := #pos - 1);
+	    #pArray += 1;
+	    #_format := RIGHT(IN := #_format, L := LEN(#_format) - #pos);
+	    #pos := "Delimeter Position"(#_format);
+	END_WHILE;
+	#_codes.me[#pArray] := #_format;
+	#pArray += 1;
+	#delimeters := #_delimeters;
+	#codes := #_codes;
+	
+END_FUNCTION
+
