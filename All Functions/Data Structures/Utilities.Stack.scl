@@ -1,0 +1,244 @@
+﻿TYPE "Utilities.Stack_Int.Commands"
+VERSION : 0.1
+   STRUCT
+      initialize : Bool;
+      pop : Bool;
+      push : Bool;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Utilities.Stack_Int.Input_Data"
+VERSION : 0.1
+   STRUCT
+      element : Int;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Utilities.Stack_Int.Settings"
+VERSION : 0.1
+   STRUCT
+      null_token : Int;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Utilities.Stack_Int.Output_Data"
+VERSION : 0.1
+   STRUCT
+      full : Bool;
+      element : Int;
+      empty : Bool;
+      error_message : String[50];
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "Utilities.Stack.Is_Full" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      depth : Int;
+      limit : Int;
+   END_VAR
+
+   VAR_TEMP 
+      ret : Bool;
+   END_VAR
+
+
+BEGIN
+	IF #depth = #limit THEN
+	    #ret := true;
+	END_IF;
+	#"Utilities.Stack.Is_Full" := #ret;
+END_FUNCTION
+
+FUNCTION "Utilities.Stack.Is_Empty" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      depth : Int;
+   END_VAR
+
+   VAR_TEMP 
+      ret : Bool;
+   END_VAR
+
+
+BEGIN
+	IF #depth = 0 THEN
+	    #ret := TRUE;
+	END_IF;
+	#"Utilities.Stack.Is_Empty" := #ret;
+END_FUNCTION
+
+FUNCTION "Utilities.Stack.Shift_Up" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      depth : Int;
+      null_token : Int;
+   END_VAR
+
+   VAR_IN_OUT 
+      stack : Array[0..#ubound] of Int;
+   END_VAR
+
+   VAR_TEMP 
+      i : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      ubound : Int := 999;
+   END_VAR
+
+
+BEGIN
+	FOR #i := #depth + 1 TO 0 BY -1 DO
+	    IF #i = 0 THEN
+	        #stack[#i] := #null_token;
+	        CONTINUE;
+	    END_IF;
+	    #stack[#i] := #stack[#i - 1];
+	END_FOR;
+END_FUNCTION
+
+FUNCTION "Utilities.Stack.Shift_Down" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      depth : Int;
+      null_token : Int;
+   END_VAR
+
+   VAR_IN_OUT 
+      stack : Array[0..#ubound] of Int;
+   END_VAR
+
+   VAR_TEMP 
+      i : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      ubound : Int := 999;
+   END_VAR
+
+
+BEGIN
+	FOR #i := 0 TO #depth DO
+	    IF #i = #depth THEN
+	        #stack[#i] := #null_token;
+	        CONTINUE;
+	    END_IF;
+	    #stack[#i] := #stack[#i + 1];
+	END_FOR;
+END_FUNCTION
+
+FUNCTION "Utilities.Stack.Initialize" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      null_token : Int;
+   END_VAR
+
+   VAR_IN_OUT 
+      stack : Array[0..#ubound] of Int;
+   END_VAR
+
+   VAR_TEMP 
+      i : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      ubound : Int := 999;
+   END_VAR
+
+
+BEGIN
+	FOR #i := 0 TO #ubound DO
+	    #stack[#i] := #null_token;
+	END_FOR;
+END_FUNCTION
+
+FUNCTION_BLOCK "Utilities.Stack"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      commands : "Utilities.Stack_Int.Commands";
+      input_data : "Utilities.Stack_Int.Input_Data";
+      settings : "Utilities.Stack_Int.Settings";
+   END_VAR
+
+   VAR_OUTPUT 
+      output_data : "Utilities.Stack_Int.Output_Data";
+   END_VAR
+
+   VAR 
+      depth : Int;
+      old { S7_SetPoint := 'False'} : "Utilities.Stack_Int.Commands";
+      ret : "Utilities.Stack_Int.Output_Data";
+      stack : Array[0..#ubound] of Int;
+   END_VAR
+
+   VAR_TEMP 
+      clean_ret : "Utilities.Stack_Int.Output_Data";
+   END_VAR
+
+   VAR CONSTANT 
+      ubound : Int := 999;
+      pushed_to_full : String := 'pushed to full stack';
+      popped_from_empty : String := 'popped from empty stack';
+      no_error : String := 'no error';
+   END_VAR
+
+
+BEGIN
+	IF #commands.push AND NOT #old.push THEN
+	    IF #ret.full THEN
+	        #ret.error_message := #pushed_to_full;
+	        GOTO RTRN;
+	    END_IF;
+	    IF NOT #ret.full THEN
+	        "Utilities.Stack.Shift_Up"(depth := #depth,
+	                                   null_token := #settings.null_token,
+	                                   stack := #stack);
+	        #stack[0] := #input_data.element;
+	        #depth += 1;
+	        #ret.full := "Utilities.Stack.Is_Full"(depth := #depth, limit := #ubound);
+	        #ret.empty := "Utilities.Stack.Is_Empty"(#depth);
+	        #ret.error_message := #no_error;
+	    END_IF;
+	END_IF;
+	
+	IF #commands.pop AND NOT #old.pop THEN
+	    IF #ret.empty THEN
+	        #ret.error_message := #popped_from_empty;
+	        GOTO RTRN;
+	    END_IF;
+	    IF NOT #ret.empty THEN
+	        #ret.element := #stack[0];
+	        "Utilities.Stack.Shift_Down"(depth := #depth,
+	                                     null_token := #settings.null_token,
+	                                     stack := #stack);
+	        #depth -= 1;
+	        #ret.full := "Utilities.Stack.Is_Full"(depth := #depth, limit := #ubound);
+	        #ret.empty := "Utilities.Stack.Is_Empty"(#depth);
+	        #ret.error_message := #no_error;
+	    END_IF;
+	END_IF;
+	
+	IF #commands.initialize AND NOT #old.initialize THEN
+	    "Utilities.Stack.Initialize"(null_token := #settings.null_token,
+	                                 stack := #stack);
+	    #ret := #clean_ret;
+	    #ret.error_message := #no_error;
+	END_IF;
+	
+	RTRN:
+	#old := #commands;
+	#output_data := #ret;
+	
+END_FUNCTION_BLOCK
+

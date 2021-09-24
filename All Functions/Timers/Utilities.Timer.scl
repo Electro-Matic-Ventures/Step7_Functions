@@ -1,0 +1,211 @@
+﻿TYPE "Runtime.All_Data"
+VERSION : 0.1
+   STRUCT
+      memory : LReal;
+      ellapsed : LReal;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Timer.Control"
+VERSION : 0.1
+   STRUCT
+      reset : Bool;
+      start : Bool;
+      stop : Bool;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Timer.Settings"
+VERSION : 0.1
+   STRUCT
+      limit : LReal;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Timer.Feedback"
+VERSION : 0.1
+   STRUCT
+      expired : Bool;
+      ellapsed : LReal;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Timer.All_Data"
+VERSION : 0.1
+   STRUCT
+      control : "Timer.Control";
+      runtime_function { S7_SetPoint := 'False'} : "Runtime.All_Data";
+      settings : "Timer.Settings";
+      feedback : "Timer.Feedback";
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION_BLOCK "Utilities.Timer"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      control : "Timer.Control";
+      settings : "Timer.Settings";
+   END_VAR
+
+   VAR_OUTPUT 
+      feedback : "Timer.Feedback";
+   END_VAR
+
+   VAR 
+      rt { S7_SetPoint := 'False'} : "Runtime.All_Data";
+      state { S7_SetPoint := 'True'} : Int;
+      last : Struct
+         reset : Bool;
+         run : Bool;
+         stop : Bool;
+      END_STRUCT;
+      _feedback { S7_SetPoint := 'False'} : "Timer.Feedback";
+   END_VAR
+
+   VAR_TEMP 
+      blank_timer : "Timer.All_Data";
+   END_VAR
+
+   VAR CONSTANT 
+      expired : Int := 0;
+      idle : Int := 1;
+      reset : Int := 2;
+      restart : Int := 3;
+      running : Int := 4;
+      stopped : Int := 5;
+   END_VAR
+
+
+BEGIN
+	REGION "NOTES"
+	    // Statement section REGION
+	    (*
+	    Timer FB.
+	    Timer runs on rising edge of run control signal.
+	    Timer stops and retains value on rising edge of stop control signal.
+	    Timer will resume on rising edge of run control signal.
+	    Timer resets to initial contdion when reset is true.
+	    Priority: reset > stop > run
+	    Timer sets expired feedback signal when limite reached.
+	    Timer will stop counting when limit reached.
+	    *)
+	END_REGION
+	
+	REGION "SET STATES"
+	    
+	    REGION "RESET"
+	        // anytime reset has rising edge
+	        IF #control.reset AND NOT #last.reset THEN
+	            #state := #reset;
+	            GOTO EXEC;
+	        END_IF;
+	    END_REGION
+	    
+	    REGION "STOPPED"
+	        // if running and stop has rising edge
+	        IF #state = #running THEN
+	            IF #control.stop AND NOT #last.stop THEN
+	                #state := #stopped;
+	                GOTO EXEC;
+	            END_IF;
+	        END_IF;
+	    END_REGION
+	    
+	    REGION "RESTART"
+	        // if running and run has rising edge
+	        IF #state = #running THEN
+	            IF #control.start AND NOT #last.run THEN
+	                #state := #restart;
+	                GOTO EXEC;
+	            END_IF;
+	        END_IF;
+	    END_REGION
+	    
+	    REGION "EXPIRED"
+	        // if running and limit reached
+	        IF #state = #running THEN
+	            IF #rt.ellapsed >= #settings.limit THEN
+	                #state := #expired;
+	                GOTO EXEC;
+	            END_IF;
+	        END_IF;
+	    END_REGION
+	    
+	    REGION "RUNNING"
+	        // enter into running 
+	        IF #state <> #running THEN
+	            IF #control.start AND NOT #last.run THEN
+	                #state := #running;
+	                GOTO EXEC;
+	            END_IF;
+	        END_IF;
+	        // stay in running
+	        IF #state = #running THEN
+	            #state := #running;
+	            GOTO EXEC;
+	        END_IF;
+	    END_REGION
+	    
+	    REGION "IDLE"
+	        // will enter idle by default
+	        #state := #idle;
+	    END_REGION
+	    
+	END_REGION
+	
+	REGION "EXECUTE STATES"
+	EXEC:
+	    
+	    CASE #state OF
+	        #expired:
+	            #rt.ellapsed := 0.0;
+	            #rt.memory := 0.0;
+	            #_feedback.expired := TRUE;
+	            #state := #idle;
+	        #idle:
+	            #state := #idle;
+	        #reset:
+	            #rt := #blank_timer.runtime_function;
+	            #_feedback := #blank_timer.feedback;
+	            #state := #idle;
+	        #restart:
+	            #rt := #blank_timer.runtime_function;
+	            #_feedback := #blank_timer.feedback;
+	            #state := #running;
+	        #running:
+	            #rt.ellapsed += RUNTIME(#rt.memory);
+	            #_feedback.ellapsed := #rt.ellapsed;
+	            #_feedback.expired := FALSE;
+	            #state := #running;
+	        #stopped:
+	            #rt.memory := 0.0;
+	            #state := #idle;
+	        ELSE
+	            #state := #idle;
+	    END_CASE;
+	    
+	END_REGION
+	
+	REGION "END OF FUNCTION"
+	END:
+	    
+	    REGION "SAVE PULSES"
+	        #last.reset := #control.reset;
+	        #last.run := #control.start;
+	        #last.stop := #control.stop;
+	    END_REGION
+	    
+	    REGION "BUFFER OUT"
+	        #feedback := #_feedback;
+	    END_REGION
+	    
+	END_REGION
+	
+END_FUNCTION_BLOCK
+
