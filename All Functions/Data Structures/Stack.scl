@@ -1,0 +1,343 @@
+﻿TYPE "Stack_Int.Commands"
+VERSION : 0.1
+   STRUCT
+      initialize : Bool;
+      pop : Bool;
+      push : Bool;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Queue_Stack_Int.Input_Data"
+VERSION : 0.1
+   STRUCT
+      element : Int;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Queue_Stack_Int.Settings"
+VERSION : 0.1
+   STRUCT
+      null_token : Int;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Queue_Stack_Int.Output_Data"
+VERSION : 0.1
+   STRUCT
+      full : Bool;
+      element : Int;
+      empty : Bool;
+      error_message : String[50];
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "Array_Int.Is_Full" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      depth : Int;
+      limit : Int;
+   END_VAR
+
+   VAR_TEMP 
+      ret : Bool;
+   END_VAR
+
+
+BEGIN
+	REGION "NOTES"
+	    (*
+	    Simple check on current depth.
+	    Saves a few lines of code and can be used in both Queues and Stacks.
+	    Last Change: 2021-09-24
+	    *)
+	END_REGION
+	
+	REGION "CHECK"
+	    IF #depth = #limit + 1 THEN
+	        #ret := true;
+	    END_IF;
+	END_REGION
+	
+	REGION "RETURN"
+	    #"Array_Int.Is_Full" := #ret;
+	END_REGION
+	
+END_FUNCTION
+
+FUNCTION "Array_Int.Is_Empty" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      depth : Int;
+   END_VAR
+
+   VAR_TEMP 
+      ret : Bool;
+   END_VAR
+
+
+BEGIN
+	REGION "NOTES"
+	    (*
+	    Simple check on current depth.
+	    Saves a few lines of code and can be used in both Queues and Stacks.
+	    Last Change: 2021-09-24
+	    *)    
+	END_REGION
+	
+	REGION "CHECK"
+	    IF #depth = 0 THEN
+	        #ret := TRUE;
+	    END_IF;
+	END_REGION
+	
+	REGION "RETURN"    
+	    #"Array_Int.Is_Empty" := #ret;
+	END_REGION
+	
+END_FUNCTION
+
+FUNCTION "Array_Int.Fill" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      int_in : Int;
+   END_VAR
+
+   VAR_OUTPUT 
+      array_out : Variant;
+   END_VAR
+
+   VAR_TEMP 
+      i : Int;
+      internal_array : Array[0..999] of Int;
+      len_array_out : UDInt;
+      status : Int;
+   END_VAR
+
+
+BEGIN
+	REGION "GET LENGHT"
+	    #len_array_out := CountOfElements(#array_out);
+	END_REGION
+	
+	
+	REGION "FILL LENGTH WITH BYTE IN"
+	    FOR #i := 0 TO UDINT_TO_INT(#len_array_out) - 1 DO
+	        #internal_array[#i] := #int_in;
+	    END_FOR;
+	END_REGION
+	
+	
+	REGION "RETURN"
+	    #status := MOVE_BLK_VARIANT(SRC := #internal_array,
+	                                COUNT := #len_array_out,
+	                                SRC_INDEX := 0,
+	                                DEST_INDEX := 0,
+	                                DEST => #array_out);
+	END_REGION
+	
+END_FUNCTION
+
+FUNCTION "Array_Int.Shift_Down" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      null_token : Int;
+   END_VAR
+
+   VAR_IN_OUT 
+      source_arrary : Variant;
+   END_VAR
+
+   VAR_TEMP 
+      i : Int;
+      _array : Array[0..999] of Int;
+      len_array : UDInt;
+      status : Int;
+      ubound : Int;
+   END_VAR
+
+
+BEGIN
+	REGION "GET LENGTH"
+	    #len_array := CountOfElements(#source_arrary);
+	END_REGION
+	
+	REGION "COPY TO LOCAL"
+	    #status := MOVE_BLK_VARIANT(SRC := #source_arrary,
+	                                COUNT := #len_array,
+	                                SRC_INDEX := 0,
+	                                DEST_INDEX := 0,
+	                                DEST => #_array);
+	END_REGION
+	
+	
+	REGION "FILL LENGTH WITH BYTE IN"
+	    #ubound := UDINT_TO_INT(#len_array) - 1;
+	    FOR #i := 0 TO #ubound DO
+	        IF #i = #ubound THEN
+	            #_array[#i] := #null_token;
+	            CONTINUE;
+	        END_IF;
+	        #_array[#i] := #_array[#i + 1];
+	    END_FOR;
+	END_REGION
+	
+	
+	REGION "RETURN"
+	    #status := MOVE_BLK_VARIANT(SRC := #_array,
+	                                COUNT := #len_array,
+	                                SRC_INDEX := 0,
+	                                DEST_INDEX := 0,
+	                                DEST => #source_arrary);
+	END_REGION
+	
+END_FUNCTION
+
+FUNCTION "Array_Int.Shift_Up" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      null_token : Int;
+   END_VAR
+
+   VAR_IN_OUT 
+      source_array : Variant;
+   END_VAR
+
+   VAR_TEMP 
+      i : Int;
+      _array : Array[0..999] of Int;
+      len_array : UDInt;
+      status : Int;
+      ubound : Int;
+   END_VAR
+
+
+BEGIN
+	REGION "GET LENGTH"
+	    #len_array := CountOfElements(#source_array);
+	END_REGION
+	
+	REGION "COPY TO LOCAL"
+	    #status := MOVE_BLK_VARIANT(SRC := #source_array,
+	                                COUNT := #len_array,
+	                                SRC_INDEX := 0,
+	                                DEST_INDEX := 0,
+	                                DEST => #_array);
+	END_REGION
+	
+	REGION "FILL LENGTH WITH BYTE IN"
+	    #ubound := UDINT_TO_INT(#len_array);
+	    FOR #i := #ubound TO 0 BY -1 DO
+	        IF #i = 0 THEN
+	            #_array[#i] := #null_token;
+	            CONTINUE;
+	        END_IF;
+	        #_array[#i] := #_array[#i - 1];
+	    END_FOR;
+	END_REGION
+	
+	REGION "RETURN"
+	    #status := MOVE_BLK_VARIANT(SRC := #_array,
+	                                COUNT := #len_array,
+	                                SRC_INDEX := 0,
+	                                DEST_INDEX := 0,
+	                                DEST => #source_array);
+	END_REGION
+	
+END_FUNCTION
+
+FUNCTION_BLOCK "Stack"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      commands : "Stack_Int.Commands";
+      input_data : "Queue_Stack_Int.Input_Data";
+      settings : "Queue_Stack_Int.Settings";
+   END_VAR
+
+   VAR_OUTPUT 
+      output_data : "Queue_Stack_Int.Output_Data";
+   END_VAR
+
+   VAR 
+      depth : Int;
+      old { S7_SetPoint := 'False'} : "Stack_Int.Commands";
+      ret : "Queue_Stack_Int.Output_Data";
+      stack : Array[0..#ubound] of Int;
+   END_VAR
+
+   VAR_TEMP 
+      clean_ret : "Queue_Stack_Int.Output_Data";
+   END_VAR
+
+   VAR CONSTANT 
+      ubound : Int := 5;
+      pushed_to_full : String := 'pushed to full stack';
+      popped_from_empty : String := 'popped from empty stack';
+      no_error : String := 'no error';
+   END_VAR
+
+
+BEGIN
+	REGION "INITIALIZE"
+	    IF #commands.initialize AND NOT #old.initialize THEN
+	        "Array_Int.Fill"(int_in := #settings.null_token,
+	                         array_out => #stack);
+	        #depth := 0;
+	        #ret := #clean_ret;
+	        #ret.empty := TRUE;
+	        #ret.error_message := #no_error;
+	    END_IF;
+	END_REGION
+	
+	REGION "PUSH"
+	    IF #commands.push AND NOT #old.push THEN
+	        IF #ret.full THEN
+	            #ret.element := #settings.null_token;
+	            #ret.error_message := #pushed_to_full;
+	            GOTO RTRN;
+	        END_IF;
+	        "Array_Int.Shift_Up"(null_token := #settings.null_token,
+	                             source_array := #stack);
+	        #stack[0] := #input_data.element;
+	        #depth += 1;
+	        #ret.full := "Array_Int.Is_Full"(depth := #depth, limit := #ubound);
+	        #ret.empty := "Array_Int.Is_Empty"(#depth);
+	        #ret.error_message := #no_error;
+	    END_IF;
+	END_REGION
+	
+	REGION "POP"
+	    IF #commands.pop AND NOT #old.pop THEN
+	        IF #ret.empty THEN
+	            #ret.element := #settings.null_token;
+	            #ret.error_message := #popped_from_empty;
+	            GOTO RTRN;
+	        END_IF;
+	        #ret.element := #stack[0];
+	        "Array_Int.Shift_Down"(null_token := #settings.null_token,
+	                               source_arrary := #stack);
+	        #depth -= 1;
+	        #ret.full := "Array_Int.Is_Full"(depth := #depth, limit := #ubound);
+	        #ret.empty := "Array_Int.Is_Empty"(#depth);
+	        #ret.error_message := #no_error;
+	    END_IF;
+	END_REGION
+	
+	REGION "RETURN"    
+	    RTRN:
+	        #old := #commands;
+	        #output_data := #ret;
+	END_REGION
+	
+	
+END_FUNCTION_BLOCK
+
