@@ -30,6 +30,8 @@ VERSION : 0.1
    STRUCT
       expired : Bool;
       ellapsed : LReal;
+      running : Bool;
+      stopped : Bool;
    END_STRUCT;
 
 END_TYPE
@@ -45,7 +47,7 @@ VERSION : 0.1
 
 END_TYPE
 
-FUNCTION_BLOCK "Utilities.Timer"
+FUNCTION_BLOCK "Timer"
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_INPUT 
@@ -182,9 +184,13 @@ BEGIN
 	            #rt.ellapsed += RUNTIME(#rt.memory);
 	            #_feedback.ellapsed := #rt.ellapsed;
 	            #_feedback.expired := FALSE;
+	            #_feedback.running := TRUE;
+	            #_feedback.stopped := FALSE;
 	            #state := #running;
 	        #stopped:
 	            #rt.memory := 0.0;
+	            #_feedback.running := FALSE;
+	            #_feedback.stopped := TRUE;
 	            #state := #idle;
 	        ELSE
 	            #state := #idle;
