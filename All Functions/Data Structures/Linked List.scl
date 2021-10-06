@@ -10,7 +10,7 @@ TYPE "Linked List: Node: Meta"
 VERSION : 0.1
    STRUCT
       key : DInt := "NULL_TOKEN";
-      is_head : int;
+      is_head : Bool;
       is_tail : Bool;
       next : DInt := "NULL_TOKEN";
    END_STRUCT;
