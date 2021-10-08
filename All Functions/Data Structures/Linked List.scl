@@ -26,28 +26,6 @@ VERSION : 0.1
 
 END_TYPE
 
-TYPE "Linked List: Method Interface: Search: Key: In"
-VERSION : 0.1
-   STRUCT
-      key : DInt;
-      request { S7_SetPoint := 'True'} : Bool;
-   END_STRUCT;
-
-END_TYPE
-
-TYPE "Linked List: Method Interface: Search: Key: Out"
-VERSION : 0.1
-   STRUCT
-      done : Bool;
-      error : Bool;
-      error_message : String;
-      found : Bool;
-      not_found : Bool;
-      returned_node : "Linked List: Node";
-   END_STRUCT;
-
-END_TYPE
-
 TYPE "Linked List: List"
 VERSION : 0.1
    STRUCT
@@ -56,79 +34,28 @@ VERSION : 0.1
 
 END_TYPE
 
-TYPE "Linked List: Method Interface: Append: In"
-VERSION : 0.1
-   STRUCT
-      data { S7_SetPoint := 'False'} : "Linked List: Node: Data";
-      request { S7_SetPoint := 'True'} : Bool;
-   END_STRUCT;
-
-END_TYPE
-
-FUNCTION "Linked List: Is Empty" : Bool
+FUNCTION "Linked List: Private: Clear Node" : Void
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
-   VAR_INPUT 
-      list : "Linked List: List";
+   VAR_IN_OUT 
+      node : "Linked List: Node";
    END_VAR
 
    VAR_TEMP 
-      pointer_list : DInt;
-      ret : Bool;
+      ret : "Linked List: Node";
    END_VAR
 
 
 BEGIN
-	#ret := TRUE;
-	FOR #pointer_list := 0 TO "LINKED_LIST_LENGTH" DO
-	    IF #list.me[#pointer_list].meta.key <> "NULL_TOKEN" THEN
-	        #ret := FALSE;
-	        EXIT;
-	    END_IF;
-	END_FOR;
-	#"Linked List: Is Empty" := #ret;
+	#ret.meta.key := "NULL_TOKEN";
+	#ret.meta.next := "NULL_TOKEN";
+	#node := #ret;
 END_FUNCTION
-
-TYPE "Linked List: Method Interface: Reset: Out"
-VERSION : 0.1
-   STRUCT
-      done : Bool;
-   END_STRUCT;
-
-END_TYPE
 
 TYPE "Linked List: Method Interface: Reset: In"
 VERSION : 0.1
    STRUCT
       request : Bool;
-   END_STRUCT;
-
-END_TYPE
-
-TYPE "Linked List: Method Interface: Append: Out"
-VERSION : 0.1
-   STRUCT
-      done : Bool;
-      error { S7_SetPoint := 'True'} : Bool;
-      error_message : String;
-   END_STRUCT;
-
-END_TYPE
-
-TYPE "Linked List: Method Interface: Re-Head: In"
-VERSION : 0.1
-   STRUCT
-      data { S7_SetPoint := 'False'} : "Linked List: Node: Data";
-      request : Bool;
-   END_STRUCT;
-
-END_TYPE
-
-TYPE "Linked List: Method Interface: Search: Key"
-VERSION : 0.1
-   STRUCT
-      in { S7_SetPoint := 'False'} : "Linked List: Method Interface: Search: Key: In";
-      out : "Linked List: Method Interface: Search: Key: Out";
    END_STRUCT;
 
 END_TYPE
@@ -160,17 +87,15 @@ VERSION : 0.1
 
 END_TYPE
 
-TYPE "Linked List: Method Interface: Re-Head: Out"
+TYPE "Linked List: Method Interface: Display: In"
 VERSION : 0.1
    STRUCT
-      done : Bool;
-      error : Bool;
-      error_message : String;
+      request : Bool;
    END_STRUCT;
 
 END_TYPE
 
-TYPE "Linked List: Method Interface: Search: Data: Out"
+TYPE "Linked List: Method Interface: Search: Out"
 VERSION : 0.1
    STRUCT
       done : Bool;
@@ -183,11 +108,19 @@ VERSION : 0.1
 
 END_TYPE
 
-TYPE "Linked List: Method Interface: Search: Data: In"
+TYPE "Linked List: Method Interface: Search: In"
 VERSION : 0.1
    STRUCT
       data { S7_SetPoint := 'False'} : "Linked List: Node: Data";
       request { S7_SetPoint := 'True'} : Bool;
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "Linked List: Method Interface: Reset: Out"
+VERSION : 0.1
+   STRUCT
+      done : Bool;
    END_STRUCT;
 
 END_TYPE
@@ -205,7 +138,7 @@ END_TYPE
 TYPE "Linked List: Method Interface: Delete: In"
 VERSION : 0.1
    STRUCT
-      key : DInt;   // key of node to be deleted
+      node { S7_SetPoint := 'False'} : "Linked List: Node";   // key of node to be deleted
       request : Bool;
    END_STRUCT;
 
@@ -224,31 +157,33 @@ END_TYPE
 TYPE "Linked List: Method Interface: Insert: In"
 VERSION : 0.1
    STRUCT
-      after_node : DInt;   // key of node after which new node is to be inserted
+      target_node { S7_SetPoint := 'False'} : "Linked List: Node";   // key of node after which new node is to be inserted
       data : "Linked List: Node: Data";
       request { S7_SetPoint := 'True'} : Bool;
    END_STRUCT;
 
 END_TYPE
 
-TYPE "Linked List: Method Interface: Display: In"
+TYPE "Linked List: Method Interface: Append: In"
 VERSION : 0.1
    STRUCT
-      request : Bool;
+      data { S7_SetPoint := 'False'} : "Linked List: Node: Data";
+      request { S7_SetPoint := 'True'} : Bool;
    END_STRUCT;
 
 END_TYPE
 
-TYPE "Linked List: Method Interface: Search: Data"
+TYPE "Linked List: Method Interface: Append: Out"
 VERSION : 0.1
    STRUCT
-      in : "Linked List: Method Interface: Search: Data: In";
-      out : "Linked List: Method Interface: Search: Data: Out";
+      done : Bool;
+      error { S7_SetPoint := 'True'} : Bool;
+      error_message : String;
    END_STRUCT;
 
 END_TYPE
 
-FUNCTION "Linked List: Get Head" : "Linked List: Node"
+FUNCTION "Linked List: Private: Get Head" : "Linked List: Node"
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_INPUT 
@@ -268,17 +203,80 @@ BEGIN
 	        EXIT;
 	    END_IF;
 	END_FOR;
-	#"Linked List: Get Head" := #ret;
+	#"Linked List: Private: Get Head" := #ret;
 END_FUNCTION
 
-FUNCTION "Linked List: Get Previous" : "Linked List: Node"
+FUNCTION "Linked List: Private: Before" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_IN_OUT 
+      next_node : "Linked List: Node";   // next_node goes after node
+      node : "Linked List: Node";   // node goes before next_node
+   END_VAR
+
+
+BEGIN
+	#node.meta.next := #next_node.meta.key;
+	IF #next_node.meta.is_head THEN
+	    #next_node.meta.is_head := FALSE;
+	    #node.meta.is_head := TRUE;
+	END_IF;
+END_FUNCTION
+
+FUNCTION "Linked List: Private: Tail Swap" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_IN_OUT 
+      new_tail : "Linked List: Node";
+      old_tail : "Linked List: Node";
+   END_VAR
+
+
+BEGIN
+	#new_tail.meta.is_tail := TRUE;
+	#old_tail.meta.is_tail := FALSE;
+END_FUNCTION
+
+FUNCTION "Linked List: Private: Head Swap" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_IN_OUT 
+      new_head : "Linked List: Node";
+      old_head : "Linked List: Node";
+   END_VAR
+
+
+BEGIN
+	#new_head.meta.is_head := TRUE;
+	#old_head.meta.is_head := FALSE;
+END_FUNCTION
+
+FUNCTION "Linked List: Private: Get Next" : "Linked List: Node"
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_INPUT 
-      key : DInt;
+      current : "Linked List: Node";
+      list : "Linked List: List";
    END_VAR
 
-   VAR_IN_OUT 
+   VAR_TEMP 
+      ret : "Linked List: Node";
+   END_VAR
+
+
+BEGIN
+	"Linked List: Private: Clear Node"(#ret);
+	IF #list.me[#current.meta.key].meta.next <> "NULL_TOKEN" THEN
+	    #ret := #list.me[#current.meta.next];
+	END_IF;
+	#"Linked List: Private: Get Next" := #ret;
+END_FUNCTION
+
+FUNCTION "Linked List: Private: Get Previous" : "Linked List: Node"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      current : "Linked List: Node";
       list : "Linked List: List";
    END_VAR
 
@@ -289,89 +287,70 @@ VERSION : 0.1
 
 
 BEGIN
-	#ret.meta.key := "NULL_TOKEN";
-	#ret.meta.next := "NULL_TOKEN";
+	"Linked List: Private: Clear Node"(#ret);
 	FOR #list_pointer := 0 TO "LINKED_LIST_LENGTH" DO
-	    IF #list.me[#list_pointer].meta.next = #key THEN
+	    IF #list.me[#list_pointer].meta.next = #current.meta.key THEN
 	        #ret := #list.me[#list_pointer];
 	        EXIT;
 	    END_IF;
 	END_FOR;
-	#"Linked List: Get Previous" := #ret;
+	#"Linked List: Private: Get Previous" := #ret;
 END_FUNCTION
 
-FUNCTION "Linked List: Search: Key" : Void
+FUNCTION "Linked List: Private: After" : Void
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_IN_OUT 
-      commands : "Linked List: Method Interface: Search: Key";
-      list : "Linked List: List";
-   END_VAR
-
-   VAR_TEMP 
-      clear_commands : "Linked List: Method Interface: Search: Key";
-      found : Bool;
-      pointer_list : DInt;
-   END_VAR
-
-   VAR CONSTANT 
-      no_error : String := 'no error';
-      searched_empty_list : String := 'searched empty list';
+      node : "Linked List: Node";
+      previous_node : "Linked List: Node";
    END_VAR
 
 
 BEGIN
-	REGION "EXIT CONDITION: EMPTY LIST"
-	    IF "Linked List: Is Empty"(#list) THEN
-	        #commands := #clear_commands;
-	        #commands.out.not_found := TRUE;
-	        #commands.out.error := TRUE;
-	        #commands.out.error_message := #searched_empty_list;
-	        RETURN;
-	    END_IF;
-	END_REGION
-	
-	REGION "SEARCH"
-	    FOR #pointer_list := 0 TO "LINKED_LIST_LENGTH" DO
-	        IF #list.me[#pointer_list].meta.key = #commands.in.key THEN
-	            #found := TRUE;
-	            EXIT;
-	        END_IF;
-	    END_FOR;
-	END_REGION
-	
-	REGION "EXIT CONDITION: FOUND"
-	    IF #found THEN
-	        #commands := #clear_commands;
-	        #commands.out.done := TRUE;
-	        #commands.out.found := TRUE;
-	        #commands.out.returned_node := #list.me[#pointer_list];
-	        #commands.out.error_message := #no_error;
-	        RETURN;
-	    END_IF;
-	END_REGION
-	
-	REGION "EXIT CONDITION: NOT FOUND"
-	    IF NOT #found THEN
-	        #commands := #clear_commands;
-	        #commands.out.done := TRUE;
-	        #commands.out.not_found := TRUE;
-	        RETURN;
-	    END_IF;
-	END_REGION
-	
+	#node.meta.next := #previous_node.meta.next;
+	#previous_node.meta.next := #node.meta.key;
+	IF #previous_node.meta.is_tail THEN
+	    #previous_node.meta.is_tail := FALSE;
+	    #node.meta.is_tail := TRUE;
+	END_IF;
 END_FUNCTION
 
-TYPE "Linked List: Method Interface: Append"
+FUNCTION "Linked List: Private: Head an Empty List" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      data : "Linked List: Node: Data";
+      terminal_behavior : String;   // 'open': head's previous and tail's next are null nodes; 'closed': head's previous is tail, tail's next is head
+   END_VAR
+
+   VAR_IN_OUT 
+      list : "Linked List: List";
+   END_VAR
+
+
+BEGIN
+	#list.me[0].data := #data;
+	#list.me[0].meta.key := 0;
+	IF #terminal_behavior = 'open' THEN
+	    #list.me[0].meta.next := "NULL_TOKEN";
+	END_IF;
+	IF #terminal_behavior = 'closed' THEN
+	    #list.me[0].meta.next := 0;
+	END_IF;
+	#list.me[0].meta.is_head := TRUE;
+	#list.me[0].meta.is_tail := TRUE;
+END_FUNCTION
+
+TYPE "Linked List: Method Interface: Delete"
 VERSION : 0.1
    STRUCT
-      in { S7_SetPoint := 'False'} : "Linked List: Method Interface: Append: In";
-      out { S7_SetPoint := 'False'} : "Linked List: Method Interface: Append: Out";
+      in { S7_SetPoint := 'False'} : "Linked List: Method Interface: Delete: In";
+      out : "Linked List: Method Interface: Delete: Out";
    END_STRUCT;
 
 END_TYPE
 
-FUNCTION "Linked List: Is Full" : Bool
+FUNCTION "Linked List: Private: Is Empty" : Bool
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_INPUT 
@@ -387,15 +366,15 @@ VERSION : 0.1
 BEGIN
 	#ret := TRUE;
 	FOR #pointer_list := 0 TO "LINKED_LIST_LENGTH" DO
-	    IF #list.me[#pointer_list].meta.key = "NULL_TOKEN" THEN
+	    IF #list.me[#pointer_list].meta.key <> "NULL_TOKEN" THEN
 	        #ret := FALSE;
 	        EXIT;
 	    END_IF;
 	END_FOR;
-	#"Linked List: Is Full" := #ret;
+	#"Linked List: Private: Is Empty" := #ret;
 END_FUNCTION
 
-FUNCTION "Linked List: Get Tail" : "Linked List: Node"
+FUNCTION "Linked List: Private: Get Tail" : "Linked List: Node"
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_IN_OUT 
@@ -416,48 +395,14 @@ BEGIN
 	        EXIT;
 	    END_IF;
 	END_FOR;
-	#"Linked List: Get Tail" := #ret;
+	#"Linked List: Private: Get Tail" := #ret;
 END_FUNCTION
 
-FUNCTION "Linked List: Next Empty Node" : DInt
-{ S7_Optimized_Access := 'TRUE' }
-VERSION : 0.1
-   VAR_IN_OUT 
-      list : "Linked List: List";
-   END_VAR
-
-   VAR_TEMP 
-      node : "Linked List: Node";
-      pointer_list : Int;
-      ret : DInt;
-   END_VAR
-
-
-BEGIN
-	#ret := "NULL_TOKEN";
-	FOR #pointer_list := 0 TO "LINKED_LIST_LENGTH" DO
-	    IF #list.me[#pointer_list].meta.key = "NULL_TOKEN" THEN
-	        #ret := INT_TO_DINT(#pointer_list);
-	        EXIT;
-	    END_IF;
-	END_FOR;
-	#"Linked List: Next Empty Node" := #ret;
-END_FUNCTION
-
-TYPE "Linked List: Method Interface: Reset"
+TYPE "Linked List: Method Interface: Search"
 VERSION : 0.1
    STRUCT
-      in : "Linked List: Method Interface: Reset: In";
-      out { S7_SetPoint := 'False'} : "Linked List: Method Interface: Reset: Out";
-   END_STRUCT;
-
-END_TYPE
-
-TYPE "Linked List: Method Interface: Re-Head"
-VERSION : 0.1
-   STRUCT
-      in { S7_SetPoint := 'False'} : "Linked List: Method Interface: Re-Head: In";
-      out { S7_SetPoint := 'False'} : "Linked List: Method Interface: Re-Head: Out";
+      in : "Linked List: Method Interface: Search: In";
+      out : "Linked List: Method Interface: Search: Out";
    END_STRUCT;
 
 END_TYPE
@@ -471,11 +416,35 @@ VERSION : 0.1
 
 END_TYPE
 
-TYPE "Linked List: Method Interface: Delete"
+FUNCTION "Linked List: Private: Is Full" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      list : "Linked List: List";
+   END_VAR
+
+   VAR_TEMP 
+      pointer_list : DInt;
+      ret : Bool;
+   END_VAR
+
+
+BEGIN
+	#ret := TRUE;
+	FOR #pointer_list := 0 TO "LINKED_LIST_LENGTH" DO
+	    IF #list.me[#pointer_list].meta.key = "NULL_TOKEN" THEN
+	        #ret := FALSE;
+	        EXIT;
+	    END_IF;
+	END_FOR;
+	#"Linked List: Private: Is Full" := #ret;
+END_FUNCTION
+
+TYPE "Linked List: Method Interface: Append"
 VERSION : 0.1
    STRUCT
-      in { S7_SetPoint := 'False'} : "Linked List: Method Interface: Delete: In";
-      out : "Linked List: Method Interface: Delete: Out";
+      in { S7_SetPoint := 'False'} : "Linked List: Method Interface: Append: In";
+      out { S7_SetPoint := 'False'} : "Linked List: Method Interface: Append: Out";
    END_STRUCT;
 
 END_TYPE
@@ -498,43 +467,56 @@ VERSION : 0.1
 
 END_TYPE
 
-FUNCTION "Linked List: Reset" : Void
+TYPE "Linked List: Method Interface: Reset"
+VERSION : 0.1
+   STRUCT
+      in : "Linked List: Method Interface: Reset: In";
+      out { S7_SetPoint := 'False'} : "Linked List: Method Interface: Reset: Out";
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "Linked List: Private: Next Empty Node" : DInt
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_IN_OUT 
-      commands : "Linked List: Method Interface: Reset";
       list : "Linked List: List";
    END_VAR
 
    VAR_TEMP 
-      blank_node : "Linked List: Node";
-      list_pointer : DInt;
-      clear_commands : "Linked List: Method Interface: Reset";
+      node : "Linked List: Node";
+      pointer_list : Int;
+      ret : DInt;
    END_VAR
 
 
 BEGIN
-	// for loop needed because temps don't start with initial values
-	#blank_node.meta.key := "NULL_TOKEN";
-	#blank_node.meta.next := "NULL_TOKEN";
-	FOR #list_pointer := 0 TO "LINKED_LIST_LENGTH" DO
-	    #list.me[#list_pointer] := #blank_node;
+	#ret := "NULL_TOKEN";
+	FOR #pointer_list := 0 TO "LINKED_LIST_LENGTH" DO
+	    IF #list.me[#pointer_list].meta.key = "NULL_TOKEN" THEN
+	        #ret := INT_TO_DINT(#pointer_list);
+	        EXIT;
+	    END_IF;
 	END_FOR;
-	#commands := #clear_commands;
-	#commands.out.done := TRUE;
+	#"Linked List: Private: Next Empty Node" := #ret;
 END_FUNCTION
 
 FUNCTION "Linked List: Append" : Void
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
+   VAR_INPUT 
+      terminal_behavior : String;
+   END_VAR
+
    VAR_IN_OUT 
       commands : "Linked List: Method Interface: Append";
       list : "Linked List: List";
    END_VAR
 
    VAR_TEMP 
-      pointer_new_node : DInt;
       clear_commands : "Linked List: Method Interface: Append";
+      head : "Linked List: Node";
+      pointer_new_node : DInt;
       tail : "Linked List: Node";
    END_VAR
 
@@ -542,25 +524,20 @@ VERSION : 0.1
       no_error : String := 'no error';
       list_full : String := 'appended to full list';
       no_tail_found : String := 'no tail found while trying to append';
-      list_empty : String := 'appended to empty list. first re-head the list.';
+      appended_as_head : String := 'appended as head of list';
    END_VAR
 
 
 BEGIN
 	REGION "NOTES"
 	    (*
-	    Append will place the new node into the first blank space in the host array.
-	    The tail node's next will get the array index in the host array of the new node.
-	    Cannot append to empty list.
-	    If you want to change this, delete the contents of the if statement under EXIT
-	    CONDITIN: APPENDED TO EMPTY LIST, and replay with a call Linked List: Re-Head call plus
-	    appropriate error and interface handling.
+	    Append adds a node to the end of the list.
 	    Last edit: 2021-10-05
 	    *)
 	END_REGION
 	
-	REGION "EXIT CONDITION: APPENDED TO FULL LIST"
-	    IF "Linked List: Is Full"(#list) THEN
+	REGION "APPEND TO FULL LIST"
+	    IF "Linked List: Private: Is Full"(#list) THEN
 	        #commands := #clear_commands;
 	        #commands.out.error := TRUE;
 	        #commands.out.error_message := #list_full;
@@ -568,17 +545,20 @@ BEGIN
 	    END_IF;
 	END_REGION
 	
-	REGION "EXIT CONDITION: APPENDED TO EMPTY LIST"
-	    IF "Linked List: Is Empty"(#list) THEN
+	REGION "APPEND TO EMPTY LIST"
+	    IF "Linked List: Private: Is Empty"(#list) THEN
+	        "Linked List: Private: Head an Empty List"(data := #commands.in.data,
+	                                                   terminal_behavior := #terminal_behavior,
+	                                                   list := #list);
 	        #commands := #clear_commands;
-	        #commands.out.error := TRUE;
-	        #commands.out.error_message := #list_empty;
+	        #commands.out.done := TRUE;
+	        #commands.out.error_message := #appended_as_head;
 	        RETURN;
 	    END_IF;
 	END_REGION
 	
 	REGION "FIND TAIL"
-	    #tail := "Linked List: Get Tail"(#list);
+	    #tail := "Linked List: Private: Get Tail"(#list);
 	END_REGION
 	
 	REGION "EXIT CONDITION: TAIL NOT FOUND"
@@ -591,19 +571,14 @@ BEGIN
 	END_REGION
 	
 	REGION "FIND FIRST NULL"
-	    #pointer_new_node := "Linked List: Next Empty Node"(#list);
+	    #pointer_new_node := "Linked List: Private: Next Empty Node"(#list);
 	END_REGION
 	
-	REGION "FILL IN NODE"
+	REGION "APPENDED NODE IS AFTER TAIL"
 	    #list.me[#pointer_new_node].data := #commands.in.data;
 	    #list.me[#pointer_new_node].meta.key := #pointer_new_node;
-	    #list.me[#pointer_new_node].meta.is_tail := TRUE;
-	    #list.me[#pointer_new_node].meta.next := "NULL_TOKEN";
-	END_REGION
-	
-	REGION "ADJUST OLD TAIL'S NEXT"
-	    #list.me[#tail.meta.key].meta.next := #pointer_new_node;
-	    #list.me[#tail.meta.key].meta.is_tail := FALSE;
+	    "Linked List: Private: After"(node := #list.me[#pointer_new_node],
+	                                  previous_node := #list.me[#tail.meta.key]);
 	END_REGION
 	
 	REGION "EXIT CONDITION: SUCCESS"
@@ -625,104 +600,66 @@ VERSION : 0.1
    VAR_TEMP 
       blank_node : "Linked List: Node";
       clear_commands : "Linked List: Method Interface: Delete";
-      pointer_list : DInt;
+      current : "Linked List: Node";
       found : Bool;
-      search_commands : "Linked List: Method Interface: Search: Key";
+      next : "Linked List: Node";
+      pointer_list : DInt;
       previous : "Linked List: Node";
+      search_commands : "Linked List: Method Interface: Search";
    END_VAR
 
    VAR CONSTANT 
       no_error : String := 'no error';
-      not_found : String := 'tried to delete non-existant node';
       delete_from_empty : String := 'deleted from an empty list.';
-      key_out_of_bounds : String := 'the delete node specified is out of bounds of the array';
    END_VAR
 
 
 BEGIN
-	REGION "EXIT CONDITION: KEY OUT OF BOUNDS"
-	    IF #commands.in.key > "LINKED_LIST_LENGTH" THEN
-	        #commands := #clear_commands;
-	        #commands.out.error := TRUE;
-	        #commands.out.error_message := #key_out_of_bounds;
-	    END_IF;
-	END_REGION
-	
 	REGION "EXIT CONDITION: LIST IS EMPTY"
-	    IF "Linked List: Is Empty"(#list) THEN
+	    IF "Linked List: Private: Is Empty"(#list) THEN
 	        #commands := #clear_commands;
 	        #commands.out.error := TRUE;
 	        #commands.out.error_message := #delete_from_empty;
 	    END_IF;
 	END_REGION
 	
-	REGION "FIND NODE TO DELETE"
-	    #search_commands.in.key := #commands.in.key;
-	    #search_commands.in.request := TRUE;
-	    "Linked List: Search: Key"(commands := #search_commands,
-	                               list := #list);
-	END_REGION
-	
-	REGION "EXIT CONDITION: SEARCH ERROR"
-	    IF #search_commands.out.error AND #search_commands.out.done THEN
-	        #commands := #clear_commands;
-	        #commands.out.error := TRUE;
-	        #commands.out.error_message := #search_commands.out.error_message;
-	        RETURN;
-	    END_IF;
-	END_REGION
-	
-	REGION "EXIT CONDITION: NODE NOT FOUND"
-	    IF #search_commands.out.not_found AND #search_commands.out.done THEN
-	        #commands := #clear_commands;
-	        #commands.out.error := TRUE;
-	        #commands.out.error_message := #not_found;
-	        RETURN;
-	    END_IF;
-	END_REGION
-	
-	
-	REGION "IF DELETED NODE IS HEAD"
-	    IF #search_commands.out.returned_node.meta.is_head THEN
-	        #list.me[#list.me[#commands.in.key].meta.next].meta.is_head := TRUE;
-	        GOTO DEL;
-	    END_IF;
-	END_REGION
-	
-	REGION "GET PREVIOUS"
-	    #previous := "Linked List: Get Previous"(key := #commands.in.key,
-	                                             list := #list);
-	END_REGION
-	
-	REGION "IF DELETED NODE IS TAIL"
-	    IF #search_commands.out.returned_node.meta.is_tail THEN
-	        #list.me[#previous.meta.key].meta.is_tail := TRUE;
-	    END_IF;
-	END_REGION
-	
 	REGION "DELETE"
-	DEL:
-	    #list.me[#previous.meta.key].meta.next := #list.me[#commands.in.key].meta.next;
-	    #list.me[#commands.in.key] := #blank_node;
+	    #current := #commands.in.node;
+	    #previous := "Linked List: Private: Get Previous"(current := #current,
+	                                                      list := #list);
+	    #next := "Linked List: Private: Get Next"(current := #current,
+	                                              list := #list);
+	    IF #current.meta.is_head AND NOT #current.meta.is_tail THEN
+	        "Linked List: Private: Head Swap"(new_head := #list.me[#next.meta.key],
+	                                          old_head := #list.me[#current.meta.key]);
+	    END_IF;
+	    IF NOT #current.meta.is_head AND #current.meta.is_tail THEN
+	        "Linked List: Private: Tail Swap"(new_tail := #list.me[#previous.meta.key],
+	                                          old_tail := #list.me[#current.meta.key]);
+	    END_IF;
+	    IF NOT #current.meta.is_head THEN
+	        #list.me[#previous.meta.key].meta.next := #next.meta.key;
+	    END_IF;
+	    "Linked List: Private: Clear Node"(#list.me[#current.meta.key]);
 	END_REGION
 	
-	REGION "SUCCESS"
+	REGION "COMMANDS OUT"
 	    #commands := #clear_commands;
 	    #commands.out.done := TRUE;
 	    #commands.out.error_message := #no_error;
 	END_REGION
 END_FUNCTION
 
-FUNCTION "Linked List: Search: Data" : Void
+FUNCTION "Linked List: Search" : Void
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_IN_OUT 
-      commands : "Linked List: Method Interface: Search: Data";
+      commands : "Linked List: Method Interface: Search";
       list : "Linked List: List";
    END_VAR
 
    VAR_TEMP 
-      clear_commands : "Linked List: Method Interface: Search: Data";
+      clear_commands : "Linked List: Method Interface: Search";
       found : Bool;
       pointer_list : DInt;
    END_VAR
@@ -735,7 +672,7 @@ VERSION : 0.1
 
 BEGIN
 	REGION "EXIT CONDITION: SEARCHED EMPTY LIST"
-	    IF "Linked List: Is Empty"(#list) THEN
+	    IF "Linked List: Private: Is Empty"(#list) THEN
 	        #commands := #clear_commands;
 	        #commands.out.not_found := TRUE;
 	        #commands.out.error := TRUE;
@@ -748,6 +685,7 @@ BEGIN
 	    FOR #pointer_list := 0 TO "LINKED_LIST_LENGTH" DO
 	        IF #list.me[#pointer_list].data = #commands.in.data THEN
 	            #found := TRUE;
+	            EXIT;
 	        END_IF;
 	    END_FOR;
 	END_REGION
@@ -792,9 +730,27 @@ BEGIN
 	#commands.out.done := TRUE;
 END_FUNCTION
 
+TYPE "Linked List: Method Interface"
+VERSION : 0.1
+   STRUCT
+      append { S7_SetPoint := 'False'} : "Linked List: Method Interface: Append";   // adds node containing data specified to end of list
+      delete : "Linked List: Method Interface: Delete";   // removes the specified node
+      display : "Linked List: Method Interface: Display";
+      insert { S7_SetPoint := 'False'} : "Linked List: Method Interface: Insert";   // inserts node containing data specified after node specified
+      reset : "Linked List: Method Interface: Reset";
+      reverse : "Linked List: Method Interface: Reverse";
+      search { S7_SetPoint := 'False'} : "Linked List: Method Interface: Search";   // returns the specified node
+   END_STRUCT;
+
+END_TYPE
+
 FUNCTION "Linked List: Insert" : Void
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
+   VAR_INPUT 
+      terminal_behavior : String;
+   END_VAR
+
    VAR_IN_OUT 
       commands : "Linked List: Method Interface: Insert";
       list : "Linked List: List";
@@ -802,22 +758,22 @@ VERSION : 0.1
 
    VAR_TEMP 
       clear_commands : "Linked List: Method Interface: Insert";
+      current : "Linked List: Node";
       next_empty_node_index : DInt;
-      search_key : "Linked List: Method Interface: Search: Key";
-      after_nodes_next : DInt;
+      previous : "Linked List: Node";
+      next : "Linked List: Node";
    END_VAR
 
    VAR CONSTANT 
       no_error : String := 'no error';
       inserted_into_full : String := 'attempted to insert into full list. delete a node and try again.';
-      inserted_into_empty : String := 'attempted to insert into empty list. create a new head instead.';
-      after_node_not_found : String := 'the node after which you attempted to insert was not found.';
+      appended_as_head : String := 'appended as head of list';
    END_VAR
 
 
 BEGIN
 	REGION "EXIT CONDITION: INSERTED INTO FULL LIST"
-	    IF "Linked List: Is Full"(#list) THEN
+	    IF "Linked List: Private: Is Full"(#list) THEN
 	        #commands := #clear_commands;
 	        #commands.out.error := TRUE;
 	        #commands.out.error_message := #inserted_into_full;
@@ -826,67 +782,49 @@ BEGIN
 	END_REGION
 	
 	REGION "EXIT CONDITION: INSERTED INTO EMPTY LIST"
-	    IF "Linked List: Is Empty"(#list) THEN
+	    IF "Linked List: Private: Is Empty"(#list) THEN
+	        "Linked List: Private: Head an Empty List"(data := #commands.in.data,
+	                                                   terminal_behavior := #terminal_behavior,
+	                                                   list := #list);
 	        #commands := #clear_commands;
 	        #commands.out.error := TRUE;
-	        #commands.out.error_message := #inserted_into_empty;
+	        #commands.out.error_message := #appended_as_head;
 	        RETURN;
 	    END_IF;
 	END_REGION
 	
 	REGION "GET INDEX OF NEXT EMPTY NODE"
-	    #next_empty_node_index := "Linked List: Next Empty Node"(#list);
+	    #next_empty_node_index := "Linked List: Private: Next Empty Node"(#list);
 	END_REGION
 	
-	REGION "FINDE AFTER NODE"
-	    #search_key.in.key := #commands.in.after_node;
-	    #search_key.in.request := TRUE;
-	    "Linked List: Search: Key"(commands := #search_key,
-	                               list := #list);
+	REGION "PREVIOUS, CURRENT, AND NEXT NODES"
+	    #current := #commands.in.target_node;
+	    #previous := "Linked List: Private: Get Previous"(current := #current,
+	                                                      list := #list);
+	    #next := #current;
 	END_REGION
 	
-	REGION "EXIT CONDITION: AFTER NODE SEARCH ERROR"
-	    IF #search_key.out.error THEN
-	        #commands := #clear_commands;
-	        #commands.out.error := TRUE;
-	        #commands.out.error_message := #search_key.out.error_message;
-	        RETURN;
+	REGION "INSERT BEFORE TARGET NODE"
+	    // new node's data becomes command data
+	    #list.me[#next_empty_node_index].data := #commands.in.data;
+	    // new node's key becomes array index
+	    #list.me[#next_empty_node_index].meta.key := #next_empty_node_index;
+	    // shorten name for indexing
+	    #current := #list.me[#next_empty_node_index];
+	    // insert
+	    IF NOT #next.meta.is_head THEN
+	        "Linked List: Private: After"(node := #list.me[#current.meta.key],
+	                                      previous_node := #list.me[#previous.meta.key]);
 	    END_IF;
+	    "Linked List: Private: Before"(next_node := #list.me[#next.meta.key],
+	                                   node := #list.me[#current.meta.key]);
 	END_REGION
 	
-	REGION "SEARCH KEY NOT FOUND"    
-	    IF #search_key.out.not_found AND #search_key.out.done THEN
-	        #commands := #clear_commands;
-	        #commands.out.error := TRUE;
-	        #commands.out.error_message := #after_node_not_found;
-	        RETURN;
-	    END_IF;
+	REGION "COMMANDS OUT"
+	    #commands := #clear_commands;
+	    #commands.out.done := TRUE;
+	    #commands.out.error_message := #no_error;
 	END_REGION
-	
-	
-	REGION "PERFOM INSERTION"
-	    IF #search_key.out.found AND #search_key.out.done THEN
-	        
-	        #search_key.out.returned_node.meta.key := #search_key.out.returned_node.meta.key;
-	        #search_key.out.returned_node.meta.next := #search_key.out.returned_node.meta.next;
-	        
-	        REGION "INSERTION"
-	            #list.me[#next_empty_node_index].data := #commands.in.data;
-	            #list.me[#next_empty_node_index].meta.key := #next_empty_node_index;
-	            #list.me[#next_empty_node_index].meta.next := #search_key.out.returned_node.meta.next;
-	            #list.me[#search_key.out.returned_node.meta.key].meta.next := #next_empty_node_index;
-	        END_REGION
-	
-	        REGION "EXIT CONDITION: SUCCESS"
-	            #commands := #clear_commands;
-	            #commands.out.done := TRUE;
-	            #commands.out.error_message := #no_error;
-	            RETURN;
-	        END_REGION
-	
-	    END_IF;
-	END_REGION
-	
 END_FUNCTION
 
 FUNCTION "Linked List: Reverse" : Void
@@ -898,16 +836,30 @@ VERSION : 0.1
    END_VAR
 
    VAR_TEMP 
+      clear_commands : "Linked List: Method Interface: Reverse";
       current : "Linked List: Node";
       next : "Linked List: Node";
       previous : "Linked List: Node";
       null_node : "Linked List: Node";
    END_VAR
 
+   VAR CONSTANT 
+      no_error : String := 'no error';
+      reversed_empty_list : String := 'reversed empty list';
+   END_VAR
+
 
 BEGIN
+	IF "Linked List: Private: Is Empty"(#list) THEN
+	    #commands := #clear_commands;
+	    #commands.out.error := TRUE;
+	    #commands.out.error_message := #reversed_empty_list;
+	    RETURN;
+	END_IF;
+	
+	"Linked List: Private: Clear Node"(#null_node);
 	#previous := #null_node;
-	#current := "Linked List: Get Head"(#list);
+	#current := "Linked List: Private: Get Head"(#list);
 	#list.me[#current.meta.key].meta.is_head := FALSE;
 	#list.me[#current.meta.key].meta.is_tail := TRUE;
 	WHILE #current.meta.next <> "NULL_TOKEN" DO
@@ -918,86 +870,37 @@ BEGIN
 	    #list.me[#current.meta.key].meta.is_head := FALSE;
 	    #list.me[#current.meta.key].meta.is_tail := FALSE;
 	END_WHILE;
-	#list.me[#previous.meta.key] := #previous;
-	#list.me[#previous.meta.key].meta.is_head := TRUE;
-	#list.me[#previous.meta.key].meta.is_tail := FALSE;
+	#list.me[#current.meta.key].meta.next := #previous.meta.key;
+	#list.me[#current.meta.key].meta.is_head := TRUE;
+	#list.me[#current.meta.key].meta.is_tail := FALSE;
+	
+	#commands := #clear_commands;
+	#commands.out.done := TRUE;
+	#commands.out.error_message := #no_error;
 END_FUNCTION
 
-FUNCTION "Linked List: Re-Head" : Void
+FUNCTION "Linked List: Reset" : Void
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_IN_OUT 
-      commands : "Linked List: Method Interface: Re-Head";
+      commands : "Linked List: Method Interface: Reset";
       list : "Linked List: List";
    END_VAR
 
    VAR_TEMP 
-      head : "Linked List: Node";
-      clear_commands : "Linked List: Method Interface: Re-Head";
-      index_of_empyt_node : DInt;
-   END_VAR
-
-   VAR CONSTANT 
-      no_error : String := 'no error';
-      re_head_full_list : String := 'attempted to re-head a full list. delet a node and try again';
+      blank_node : "Linked List: Node";
+      list_pointer : DInt;
+      clear_commands : "Linked List: Method Interface: Reset";
    END_VAR
 
 
 BEGIN
-	REGION "EXIT CONDITION: RE-HEAD EMPTY LIST"
-	    IF "Linked List: Is Empty"(#list) THEN
-	        #list.me[0].data := #commands.in.data;
-	        #list.me[0].meta.is_head := TRUE;
-	        #list.me[0].meta.is_tail := TRUE;
-	        #list.me[0].meta.key := 0;
-	        #list.me[0].meta.next := "NULL_TOKEN";
-	        GOTO SUCCESS;
-	    END_IF;
-	END_REGION
-	
-	REGION "EXIT CONDTION: TRIED TO RE-HEAD A FULL LIST"
-	    IF "Linked List: Is Full"(#list) THEN
-	        #commands := #clear_commands;
-	        #commands.out.error := TRUE;
-	        #commands.out.error_message := #re_head_full_list;
-	        RETURN;
-	    END_IF;
-	END_REGION
-	
-	REGION "RE-HEAD"
-	    #head := "Linked List: Get Head"(#list);
-	    #index_of_empyt_node := "Linked List: Next Empty Node"(#list);
-	    #list.me[#index_of_empyt_node].data := #commands.in.data;
-	    #list.me[#index_of_empyt_node].meta.is_head := TRUE;
-	    #list.me[#index_of_empyt_node].meta.key := #index_of_empyt_node;
-	    #list.me[#index_of_empyt_node].meta.next := #head.meta.key;
-	    #list.me[#head.meta.key].meta.is_head := FALSE;
-	    GOTO SUCCESS;
-	END_REGION
-	
-	REGION "SUCCESS"
-	SUCCESS:
-	    #commands := #clear_commands;
-	    #commands.out.done := TRUE;
-	    #commands.out.error_message := #no_error;
-	END_REGION
+	FOR #list_pointer := 0 TO "LINKED_LIST_LENGTH" DO
+	    "Linked List: Private: Clear Node"(#list.me[#list_pointer]);
+	END_FOR;
+	#commands := #clear_commands;
+	#commands.out.done := TRUE;
 END_FUNCTION
-
-TYPE "Linked List: Method Interface"
-VERSION : 0.1
-   STRUCT
-      append { S7_SetPoint := 'False'} : "Linked List: Method Interface: Append";   // adds node containing data specified to end of list
-      delete : "Linked List: Method Interface: Delete";   // removes the specified node
-      display : "Linked List: Method Interface: Display";
-      insert { S7_SetPoint := 'False'} : "Linked List: Method Interface: Insert";   // inserts node containing data specified after node specified
-      rehead : "Linked List: Method Interface: Re-Head";
-      reset : "Linked List: Method Interface: Reset";
-      reverse : "Linked List: Method Interface: Reverse";
-      search_data { S7_SetPoint := 'False'} : "Linked List: Method Interface: Search: Data";   // returns the specified node
-      search_key : "Linked List: Method Interface: Search: Key";
-   END_STRUCT;
-
-END_TYPE
 
 FUNCTION_BLOCK "Linked List"
 { S7_Optimized_Access := 'TRUE' }
@@ -1010,11 +913,16 @@ VERSION : 0.1
       list { S7_SetPoint := 'False'} : "Linked List: List";
    END_VAR
 
+   VAR CONSTANT 
+      TERMINAL_BEHAVIOR : String := 'open';
+   END_VAR
+
 
 BEGIN
 	REGION "APPEND"
 	    IF #interface.append.in.request THEN
-	        "Linked List: Append"(commands := #interface.append,
+	        "Linked List: Append"(terminal_behavior := #TERMINAL_BEHAVIOR,
+	                              commands := #interface.append,
 	                              list := #list);
 	    END_IF;
 	END_REGION
@@ -1035,15 +943,9 @@ BEGIN
 	
 	REGION "INSERT"
 	    IF #interface.insert.in.request THEN
-	        "Linked List: Insert"(commands := #interface.insert,
+	        "Linked List: Insert"(terminal_behavior := #TERMINAL_BEHAVIOR,
+	                              commands := #interface.insert,
 	                              list := #list);
-	    END_IF;
-	END_REGION
-	
-	REGION "RE-HEAD"
-	    IF #interface.rehead.in.request THEN
-	        "Linked List: Re-Head"(commands := #interface.rehead,
-	                               list := #list);
 	    END_IF;
 	END_REGION
 	
@@ -1062,21 +964,10 @@ BEGIN
 	END_REGION
 	
 	REGION "SEARCH"
-	    
-	    REGION "DATA"
-	        IF #interface.search_data.in.request THEN
-	            "Linked List: Search: Data"(commands := #interface.search_data,
-	                                        list := #list);
-	        END_IF;
-	    END_REGION
-	    
-	    REGION "KEY"
-	        IF #interface.search_key.in.request THEN
-	            "Linked List: Search: Key"(commands := #interface.search_key,
-	                                       list := #list);
-	        END_IF;
-	    END_REGION
-	    
+	    IF #interface.search.in.request THEN
+	        "Linked List: Search"(commands := #interface.search,
+	                              list := #list);
+	    END_IF;
 	END_REGION
 	
 END_FUNCTION_BLOCK
