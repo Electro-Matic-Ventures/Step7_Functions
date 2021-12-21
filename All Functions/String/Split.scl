@@ -1,0 +1,46 @@
+﻿FUNCTION "Split" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      string_in : String;
+      delimeter : String;
+      "pointer" : Int;
+   END_VAR
+
+   VAR_IN_OUT 
+      sub_strings : Array[*] of String;
+   END_VAR
+
+   VAR_TEMP 
+      _split : String;
+      _position : Int;
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	REGION "GET POSITION OF DELIMETER IN STRING"
+	    #_position := FIND(IN1 := #string_in,
+	                       IN2 := #delimeter);
+	END_REGION
+	
+	REGION "BASE CASE"
+	    IF #_position = 0 THEN
+	        #sub_strings[#pointer] := #string_in;
+	        RETURN;
+	    END_IF;
+	END_REGION
+	
+	
+	REGION "RECURSIVE CASE"
+	    #sub_strings[#pointer] := LEFT(IN := #string_in, L := #_position - 1);
+	    "Split"(string_in := RIGHT(IN := #string_in, L := LEN(#string_in) - #_position),
+	            delimeter := #delimeter,
+	            "pointer" := #pointer + 1,
+	            sub_strings := #sub_strings);
+	END_REGION
+	
+	
+	
+END_FUNCTION
+

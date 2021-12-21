@@ -1,0 +1,120 @@
+﻿FUNCTION "Split" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      string_in : String;
+      delimeter : String;
+      "pointer" : Int;
+   END_VAR
+
+   VAR_IN_OUT 
+      sub_strings : Array[*] of String;
+   END_VAR
+
+   VAR_TEMP 
+      _split : String;
+      _position : Int;
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	REGION "GET POSITION OF DELIMETER IN STRING"
+	    #_position := FIND(IN1 := #string_in,
+	                       IN2 := #delimeter);
+	END_REGION
+	
+	REGION "BASE CASE"
+	    IF #_position = 0 THEN
+	        #sub_strings[#pointer] := #string_in;
+	        RETURN;
+	    END_IF;
+	END_REGION
+	
+	
+	REGION "RECURSIVE CASE"
+	    #sub_strings[#pointer] := LEFT(IN := #string_in, L := #_position - 1);
+	    "Split"(string_in := RIGHT(IN := #string_in, L := LEN(#string_in) - #_position),
+	            delimeter := #delimeter,
+	            "pointer" := #pointer + 1,
+	            sub_strings := #sub_strings);
+	END_REGION
+	
+	
+	
+END_FUNCTION
+
+FUNCTION "String_to_DTL" : DTL
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      time_as_string : String;
+   END_VAR
+
+   VAR_TEMP 
+      _dtl_components : Array[0..4] of String;
+      _date : String;
+      _time : String;
+      _year : String;
+      _month : String;
+      _day : String;
+      _hour : String;
+      _minute : String;
+   END_VAR
+
+
+BEGIN
+	"Split"(string_in:=#time_as_string,
+	        delimeter:='T',
+	        "pointer":=0,
+	        sub_strings:=#_dtl_components);
+	
+	#_date := #_dtl_components[0];
+	#_time := #_dtl_components[1];
+	
+	"Split"(string_in := #_date,
+	        delimeter := '-',
+	        "pointer" := 0,
+	        sub_strings := #_dtl_components);
+	#_year := #_dtl_components[0];
+	#_month := #_dtl_components[1];
+	#_day := #_dtl_components[2];
+	
+	"Split"(string_in := #_time,
+	        delimeter := ':',
+	        "pointer" := 0,
+	        sub_strings := #_dtl_components);
+	#_hour := #_dtl_components[0];
+	#_minute := #_dtl_components[1];
+	
+	#String_to_DTL.YEAR := STRING_TO_UINT(#_year);
+	#String_to_DTL.MONTH := STRING_TO_USINT(#_month);
+	#String_to_DTL.DAY := STRING_TO_USINT(#_day);
+	#String_to_DTL.HOUR := STRING_TO_USINT(#_hour);
+	#String_to_DTL.MINUTE := STRING_TO_USINT(#_minute);
+	
+END_FUNCTION
+
+FUNCTION "Set_System_Time_from_Web_Page" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_IN_OUT 
+      time_as_string : String;
+   END_VAR
+
+   VAR_TEMP 
+      _ret_val : Int;
+      _time_as_dtl {InstructionName := 'DTL'; LibVersion := '1.0'} : DTL;
+   END_VAR
+
+
+BEGIN
+	IF #time_as_string = '' THEN
+	    RETURN;
+	END_IF;
+	
+	#_time_as_dtl := "String_to_DTL"(#time_as_string);
+	#_ret_val := WR_SYS_T(#_time_as_dtl);
+	#time_as_string := '';
+END_FUNCTION
+
