@@ -1,0 +1,75 @@
+﻿FUNCTION "Array.Any.Length" : UDInt
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "array" : Variant;
+   END_VAR
+
+   VAR_TEMP 
+      status : DInt;
+      ret : UDInt;
+   END_VAR
+
+
+BEGIN
+	#ret := CountOfElements(#array);
+	#"Array.Any.Length" := #ret;
+END_FUNCTION
+
+FUNCTION "WString.Find_Multiple" : Int
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      body : WString;
+      terms : Array[*] of WString;
+      p_terms : Int;
+   END_VAR
+
+   VAR_TEMP 
+      _length : UDInt;
+      _position : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      BLANK : WString;
+   END_VAR
+
+
+BEGIN
+	(* 
+	    Searches 'body' for first occurance of any element of 'terms'.
+	    Returns character postion in the string (1 indexed).
+	    E.G.: 
+	        - body := WSTRING#'Hi, how are you today?'
+	        - terms := <WSTRING#>[',', ' ', '.', '?']
+	        - returns --> 3
+	    E.G.: 
+	        - body := WSTRING#' how are you today?'
+	        - terms := <WSTRING#>[',', ' ', '.', '?']
+	        - returns --> 1
+	    E.G.: 
+	        - body := WSTRING#'today?'
+	        - terms := <WSTRING#>[',', ' ', '.', '?']
+	        - returns --> 6
+	*)
+	
+	#_length := "Array.Any.Length"(#terms);
+	
+	IF #p_terms > #_length OR #terms[#p_terms] = #BLANK THEN
+	        #"WString.Find_Multiple" := 0;
+	    RETURN;
+	END_IF;
+	
+	#_position := FIND(IN1 := #body,
+	                   IN2 := #terms[#p_terms]);
+	
+	IF #_position = 0 THEN
+	    #_position := "WString.Find_Multiple"(body := #body,
+	                                          terms := #terms,
+	                                          p_terms := #p_terms + 1);
+	END_IF;
+	
+	#"WString.Find_Multiple" := #_position;
+	    
+END_FUNCTION
+
