@@ -1,0 +1,72 @@
+﻿FUNCTION "Array.Any.Length" : UDInt
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "array" : Variant;
+   END_VAR
+
+   VAR_TEMP 
+      status : DInt;
+      ret : UDInt;
+   END_VAR
+
+
+BEGIN
+	#ret := CountOfElements(#array);
+	#"Array.Any.Length" := #ret;
+END_FUNCTION
+
+FUNCTION "WString.Find_Multiple.Depth" : Int
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      body : WString;
+      terms : Array[*] of WString;
+      p_terms : Int;
+   END_VAR
+
+   VAR_TEMP 
+      _length : UDInt;
+      _position : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      BLANK : WString;
+   END_VAR
+
+
+BEGIN
+	(* 
+	    Depth first search of 'body' for first occurance of any element of 'terms'.
+	    For breadth first search, use WString.Find_Multiple.Breadth.
+	    Returns character postion in the string (1 indexed).
+	    E.G.: 
+	        - body := WSTRING#'today?'
+	        - terms := <WSTRING#>['?', 'ay']
+	        - returns --> 6
+	    E.G.:
+	        - body := WSTRING#'today?'
+	        - terms := <WSTRING#>['ay', '?']
+	        - returns --> 4
+	*)
+	
+	#_length := "Array.Any.Length"(#terms);
+	
+	IF #p_terms > #_length OR #terms[#p_terms] = #BLANK THEN
+	        #"WString.Find_Multiple.Depth" := 0;
+	    RETURN;
+	END_IF;
+	
+	#_position := FIND(IN1 := #body,
+	                   IN2 := #terms[#p_terms]);
+	
+	IF #_position = 0 THEN
+	    #_position := "WString.Find_Multiple.Depth"(body := #body,
+	                                          terms := #terms,
+	                                          p_terms := #p_terms + 1);
+	END_IF;
+	
+	#"WString.Find_Multiple.Depth" := #_position;
+	    
+END_FUNCTION
+

@@ -1,0 +1,151 @@
+﻿FUNCTION "Array.Any.Length" : UDInt
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "array" : Variant;
+   END_VAR
+
+   VAR_TEMP 
+      status : DInt;
+      ret : UDInt;
+   END_VAR
+
+
+BEGIN
+	#ret := CountOfElements(#array);
+	#"Array.Any.Length" := #ret;
+END_FUNCTION
+
+FUNCTION "Array.WString.Is_Element" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      search_term : WString;
+      search_array : Array[*] of WString[1];
+   END_VAR
+
+   VAR_TEMP 
+      _i : Int;
+      _length_search_array : UDInt;
+   END_VAR
+
+
+BEGIN
+	#_length_search_array := "Array.Any.Length"(#search_array);
+	FOR #_i := 0 TO UDINT_TO_INT(#_length_search_array - 1) DO
+	    IF #search_term = #search_array[#_i] THEN
+	        #"Array.WString.Is_Element" := TRUE;
+	        RETURN;
+	    END_IF;
+	END_FOR;
+	#"Array.WString.Is_Element" := FALSE;
+END_FUNCTION
+
+FUNCTION "Trim" : WString
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "wString" : WString;
+   END_VAR
+
+   VAR_TEMP 
+      ret : WString;
+   END_VAR
+
+   VAR CONSTANT 
+      space : WString := WSTRING#' ';
+   END_VAR
+
+
+BEGIN
+	#ret := #wString;
+	WHILE LEFT(IN := #ret, L := 1) = #space DO
+	    #ret := RIGHT(IN := #ret, L := LEN(#ret) - 1);
+	END_WHILE;
+	WHILE RIGHT(IN := #ret, L := 1) = #space DO
+	    #ret := LEFT(IN := #ret, L := LEN(#ret) - 1);
+	END_WHILE;
+	#Trim := #ret;
+END_FUNCTION
+
+FUNCTION "WString.Word_Wrap" : WString
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      delimeters : Array[*] of WString[1];
+      line_length : Int;
+      wstring_in : WString;
+   END_VAR
+
+   VAR_TEMP 
+      _i : Int;
+      _substring_length : Int;
+      _wstring_in_length : Int;
+      _pointer_substrings : Int;
+      _substring : WString;
+      _position_of_last_delimeter : Int;
+      _recurse : Bool;
+      _string_split_right : WString;
+   END_VAR
+
+   VAR CONSTANT 
+      BLANK : WString;
+      NEW_LINE : WString := WSTRING#'$L';
+   END_VAR
+
+
+BEGIN
+	#_wstring_in_length := LEN(#wstring_in);
+	
+	IF #line_length = 0 THEN
+	    #"WString.Word_Wrap" := #BLANK;
+	    RETURN;
+	END_IF;
+	
+	FOR #_i := 1 TO #_wstring_in_length DO
+	    
+	    #_substring := CONCAT_WSTRING(IN1 := #_substring,
+	                                  IN2 := #wstring_in[#_i]);
+	    #_substring_length := LEN(#_substring);
+	    
+	    IF "Array.WString.Is_Element"(search_term := #wstring_in[#_i], search_array := #delimeters) THEN
+	        #_position_of_last_delimeter := #_i;
+	    END_IF;
+	    
+	    IF #wstring_in[#_i] = #NEW_LINE THEN
+	        #_substring := LEFT_WSTRING(IN := #_substring,
+	                                    L := #_substring_length - 1);
+	        #_string_split_right := RIGHT_WSTRING(IN := #wstring_in,
+	                                              L := #_wstring_in_length - #_i);
+	        #_recurse := TRUE;
+	    END_IF;
+	    
+	    IF (#_substring_length = #line_length) AND (#_position_of_last_delimeter <> 0) THEN
+	        #_substring := LEFT_WSTRING(IN := #_substring,
+	                                    L := #_position_of_last_delimeter);
+	        #_string_split_right := RIGHT_WSTRING(IN := #wstring_in,
+	                                              L := #_wstring_in_length - #_position_of_last_delimeter);
+	        #_recurse := TRUE;
+	    END_IF;
+	    
+	    IF (#_substring_length = #line_length) AND (#_position_of_last_delimeter = 0) THEN
+	        #_string_split_right := RIGHT_WSTRING(IN := #wstring_in,
+	                                              L := #_wstring_in_length - #_substring_length);
+	        #_recurse := TRUE;
+	    END_IF;
+	    
+	    IF #_recurse THEN
+	        #_substring := CONCAT_WSTRING(IN1 := "Trim"(#_substring),
+	                                      IN2 := #NEW_LINE,
+	                                      IN3 := "WString.Word_Wrap"(delimeters := #delimeters,
+	                                                                 line_length := #line_length,
+	                                                                 wstring_in := #_string_split_right));
+	        #"WString.Word_Wrap" := #_substring;
+	        RETURN;
+	    END_IF;
+	    
+	END_FOR; 
+	
+	#"WString.Word_Wrap" := "Trim"(#_substring);
+END_FUNCTION
+

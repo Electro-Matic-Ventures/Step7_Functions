@@ -1,0 +1,46 @@
+﻿FUNCTION "WString.Split_Single" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      wstring_in : WString;
+      delimeter : WString;
+      "pointer" : Int;
+   END_VAR
+
+   VAR_IN_OUT 
+      sub_strings : Array[*] of WString;
+   END_VAR
+
+   VAR_TEMP 
+      _split : WString;
+      _position : Int;
+      _return : WString;
+   END_VAR
+
+
+BEGIN
+	REGION "GET POSITION OF DELIMETER IN STRING"
+	    #_position := FIND(IN1 := #wstring_in,
+	                       IN2 := #delimeter);
+	END_REGION
+	
+	REGION "BASE CASE"
+	    IF #_position = 0 THEN
+	        #sub_strings[#pointer] := #wstring_in;
+	        RETURN;
+	    END_IF;
+	END_REGION
+	
+	
+	REGION "RECURSIVE CASE"
+	    #sub_strings[#pointer] := LEFT(IN := #wstring_in, L := #_position - 1);
+	    "WString.Split_Single"(wstring_in := RIGHT(IN := #wstring_in, L := LEN(#wstring_in) - #_position),
+	                    delimeter := #delimeter,
+	                    "pointer" := #pointer + 1,
+	                    sub_strings := #sub_strings);
+	END_REGION
+	
+	
+	
+END_FUNCTION
+

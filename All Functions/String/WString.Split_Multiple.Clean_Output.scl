@@ -1,0 +1,44 @@
+﻿FUNCTION "Array.Any.Length" : UDInt
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "array" : Variant;
+   END_VAR
+
+   VAR_TEMP 
+      status : DInt;
+      ret : UDInt;
+   END_VAR
+
+
+BEGIN
+	#ret := CountOfElements(#array);
+	#"Array.Any.Length" := #ret;
+END_FUNCTION
+
+FUNCTION "WString.Split_Multiple.Clean_Output" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "pointer" : Int;
+   END_VAR
+
+   VAR_IN_OUT 
+      substrings : Array[*] of WString;
+   END_VAR
+
+   VAR_TEMP 
+      _i : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      BLANK : WString;
+   END_VAR
+
+
+BEGIN
+	FOR #_i := #"pointer" TO UDINT_TO_INT("Array.Any.Length"(#substrings)) - 1 DO
+	    #substrings[#_i] := wstring#'';
+	END_FOR;
+END_FUNCTION
+
