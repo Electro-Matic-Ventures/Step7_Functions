@@ -1,0 +1,95 @@
+﻿FUNCTION "String.Trim" : String
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Machado
+FAMILY : 'String'
+VERSION : 1.0
+//removes leading and trailing whitespace from input string
+   VAR_INPUT 
+      "string" : String;
+   END_VAR
+
+   VAR_TEMP 
+      ret : String;
+   END_VAR
+
+   VAR CONSTANT 
+      space : String := ' ';
+   END_VAR
+
+
+BEGIN
+	#ret := #string;
+	WHILE LEFT(IN := #ret, L := 1) = #space DO
+	    #ret := RIGHT(IN := #ret, L := LEN(#ret) - 1);
+	END_WHILE;
+	WHILE RIGHT(IN := #ret, L := 1) = #space DO
+	    #ret := LEFT(IN := #ret, L := LEN(#ret) - 1);
+	END_WHILE;
+	#"String.Trim" := #ret;
+END_FUNCTION
+
+FUNCTION "String.Strip Sign" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "string" : String;
+   END_VAR
+
+   VAR_TEMP 
+      Length : Int;
+      "String Box" : String;
+      "Test Character" : String;
+   END_VAR
+
+   VAR CONSTANT 
+      "+" : Char := '+';
+      "-" : Char := '-';
+   END_VAR
+
+
+BEGIN
+	#"String Box" := #string;
+	#"Test Character" := LEFT_STRING(IN := #"String Box",
+	                                 L := 1);
+	IF #"Test Character" = #"+" OR #"Test Character" = #"-" THEN
+	    #Length := LEN(#"String Box");
+	    #"String Box" := RIGHT_STRING(IN := #"String Box", L := #Length - 1);
+	    
+	END_IF;
+	#"String.Strip Sign" := #"String Box";
+END_FUNCTION
+
+FUNCTION "Nibble.To_String" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      value : Byte;
+   END_VAR
+
+   VAR_TEMP 
+      _nibble_as_int : Int;
+      _ret : String;
+   END_VAR
+
+
+BEGIN
+	#_nibble_as_int := BYTE_TO_INT(#value);
+	CASE #_nibble_as_int OF
+	    0..9:
+	        #_ret := "String.Trim"("String.Strip Sign"(INT_TO_STRING(#_nibble_as_int)));
+	    10:
+	        #_ret := 'A';
+	    11:
+	        #_ret := 'B';
+	    12:
+	        #_ret := 'C';
+	    13:
+	        #_ret := 'D';
+	    14:
+	        #_ret := 'E';
+	    15:
+	        #_ret := 'F';
+	END_CASE;
+	#"Nibble.ToString" := #_ret;
+END_FUNCTION
+
