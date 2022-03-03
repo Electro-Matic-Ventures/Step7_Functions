@@ -1,0 +1,51 @@
+﻿TYPE "ADP: Decoded: Horizontal Alignment"
+VERSION : 0.1
+   STRUCT
+      center : String[8] := 'center';
+      left : String[8] := 'left';
+      right : String[8] := 'right';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Encoded: Formatting: Horizontal Alignment"
+VERSION : 0.1
+   STRUCT
+      center : String[5] := '$L1';
+      left : String[5] := '$L0';
+      right : String[5] := '$L2';
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "ADP.Decode.Horizontal_Alignment" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      horizontal_alignment : String;
+      decoded : "ADP: Decoded: Horizontal Alignment";
+      encoded : "ADP: Encoded: Formatting: Horizontal Alignment";
+   END_VAR
+
+   VAR_TEMP 
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	IF #horizontal_alignment = #encoded.center THEN
+	    #_return := #decoded.center;
+	    GOTO RTRN;
+	END_IF;
+	IF #horizontal_alignment = #encoded.left THEN
+	    #_return := #decoded.left;
+	    GOTO RTRN;
+	END_IF;
+	IF #horizontal_alignment = #encoded.right THEN
+	    #_return := #decoded.right;
+	    GOTO RTRN;
+	END_IF;
+	RTRN:
+	#"ADP: Decode: Horizontal Alignment" := #_return;
+END_FUNCTION
+

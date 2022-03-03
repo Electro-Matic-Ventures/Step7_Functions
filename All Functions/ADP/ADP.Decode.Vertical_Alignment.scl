@@ -1,0 +1,81 @@
+﻿TYPE "ADP: Encoded: Formatting: Vertical Alignment"
+VERSION : 0.1
+   STRUCT
+      middle_hold : String[5] := '$1B b';
+      fill_hold : String[5] := '$1B"b';
+      bottom_hold : String[5] := '$1B&b';
+      top_hold : String[5] := '$1B0b';
+      bottom_scroll : String[5] := '$1B a';
+      fill_scroll : String[5] := '$1B"a';
+      middle_scroll : String[5] := '$1B&a';
+      top_scroll : String[5] := '$1B0a';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Decoded: Vertical Alignment"
+VERSION : 0.1
+   STRUCT
+      bottom_hold : String[15] := 'bottom hold';
+      fill_hold : String[15] := 'fill hold';
+      middle_hold : String[15] := 'middle hold';
+      top_hold : String[15] := 'top hold';
+      bottom_scroll : String[15] := 'bottom scroll';
+      fill_scroll : String[15] := 'fill scroll';
+      middle_scroll : String[15] := 'middle scroll';
+      top_scroll : String[15] := 'top scroll';
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "ADP.Decode.Vertical_Alignment" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      vertical_alignment : String;
+      decoded : "ADP: Decoded: Vertical Alignment";
+      encoded : "ADP: Encoded: Formatting: Vertical Alignment";
+   END_VAR
+
+   VAR_TEMP 
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	IF #vertical_alignment = #encoded.bottom_hold THEN
+	    #_return := #decoded.bottom_hold;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #encoded.fill_hold THEN
+	    #_return := #decoded.fill_hold;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #encoded.middle_hold THEN
+	    #_return := #decoded.middle_hold;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #encoded.top_hold THEN
+	    #_return := #decoded.top_hold;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #encoded.bottom_scroll THEN
+	    #_return := #decoded.bottom_scroll;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #encoded.fill_scroll THEN
+	    #_return := #decoded.fill_scroll;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #encoded.middle_scroll THEN
+	    #_return := #decoded.middle_scroll;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #encoded.top_scroll THEN
+	    #_return := #decoded.top_scroll;
+	    GOTO RTRN;
+	END_IF;
+	RTRN:
+	#"ADP: Decode: Vertical Alignment" := #_return;
+END_FUNCTION
+

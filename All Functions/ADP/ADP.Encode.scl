@@ -1,0 +1,613 @@
+﻿TYPE "ADP: Encoded: Formatting: Horizontal Alignment"
+VERSION : 0.1
+   STRUCT
+      center : String[5] := '$L1';
+      left : String[5] := '$L0';
+      right : String[5] := '$L2';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Decoded: Color"
+VERSION : 0.1
+   STRUCT
+      black : String[8] := 'black';
+      blue : String[8] := 'blue';
+      green : String[8] := 'green';
+      mix_1 : String[8] := 'mix 1';
+      mix_2 : String[8] := 'mix 2';
+      mix_3 : String[8] := 'mix 3';
+      mix_4 : String[8] := 'mix 4';
+      red : String[8] := 'red';
+      white : String[8] := 'white';
+      yellow : String[8] := 'yellow';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Decoded: Flash"
+VERSION : 0.1
+   STRUCT
+      off : String[8] := 'off';
+      on : String[8] := 'on';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Decoded: Horizontal Alignment"
+VERSION : 0.1
+   STRUCT
+      center : String[8] := 'center';
+      left : String[8] := 'left';
+      right : String[8] := 'right';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Decoded: Size and Face"
+VERSION : 0.1
+   STRUCT
+      bold_5 : String[11] := 'bold 5';
+      bold_11 : String[11] := 'bold 11';
+      bold_14 : String[11] := 'bold 14';
+      bold_15 : String[11] := 'bold 15';
+      bold_16 : String[11] := 'bold 16';
+      bold_22 : String[11] := 'bold 22';
+      bold_30 : String[11] := 'bold 30';
+      bold_32 : String[11] := 'bold 32';
+      bold_40 : String[11] := 'bold 40';
+      normal_5 : String[11] := 'normal 5';
+      normal_7 : String[11] := 'normal 7';
+      normal_9 : String[11] := 'normal 9';
+      normal_11 : String[11] := 'normal 11';
+      normal_14 : String[11] := 'normal 14';
+      normal_15 : String[11] := 'normal 15';
+      normal_16 : String[11] := 'normal 16';
+      normal_22 : String[11] := 'normal 22';
+      normal_24 : String[11] := 'normal 24';
+      normal_30 : String[11] := 'normal 30';
+      normal_32 : String[11] := 'normal 32';
+      normal_40 : String[11] := 'normal 40';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Decoded: Vertical Alignment"
+VERSION : 0.1
+   STRUCT
+      bottom_hold : String[15] := 'bottom hold';
+      fill_hold : String[15] := 'fill hold';
+      middle_hold : String[15] := 'middle hold';
+      top_hold : String[15] := 'top hold';
+      bottom_scroll : String[15] := 'bottom scroll';
+      fill_scroll : String[15] := 'fill scroll';
+      middle_scroll : String[15] := 'middle scroll';
+      top_scroll : String[15] := 'top scroll';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Decoded: Scroll Speed"
+VERSION : 0.1
+   STRUCT
+      slowest : String[9] := 'slowest';
+      slow : String[9] := 'slow';
+      normal : String[9] := 'normal';
+      fast : String[9] := 'fast';
+      fastest : String[9] := 'fastest';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Decoded: Line Control"
+VERSION : 0.1
+   STRUCT
+      new_line : String[9] := 'new line';
+      word_wrap : String[9] := 'word wrap';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Encoded: Formatting: Line Control"
+VERSION : 0.1
+   STRUCT
+      new_line : String[5] := '$R';
+      word_wrap : String[5] := '';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Encoded: Formatting: Color"
+VERSION : 0.1
+   STRUCT
+      black { S7_SetPoint := 'True'} : String[5] := '$1C0';
+      blue : String[5] := '$1C8';
+      green : String[5] := '$1C2';
+      mix_1 : String[5] := '$1C4';
+      mix_2 : String[5] := '$1C5';
+      mix_3 : String[5] := '$1C6';
+      mix_4 : String[5] := '$1CY';
+      red : String[5] := '$1C1';
+      white : String[5] := '$1C9';
+      yellow : String[5] := '$1C3';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Encoded: Formatting: Flashing"
+VERSION : 0.1
+   STRUCT
+      off : String[5] := '$070';
+      on : String[5] := '$071';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Encoded: Formatting: Size and Face"
+VERSION : 0.1
+   STRUCT
+      bold_5 : String[5] := '$1AG';
+      bold_11 : String[5] := '$1AH';
+      bold_14 : String[5] := '$1A5';
+      bold_15 : String[5] := '$1A6';
+      bold_16 : String[5] := '$1A7';
+      bold_22 : String[5] := '$1AC';
+      bold_30 : String[5] := '$1AI';
+      bold_32 : String[5] := '$1AJ';
+      bold_40 : String[5] := '$1AK';
+      normal_5 { S7_SetPoint := 'True'} : String[5] := '$1A0';
+      normal_7 : String[5] := '$1A1';
+      normal_9 : String[5] := '$1A8';
+      normal_11 : String[5] := '$1A9';
+      normal_14 : String[5] := '$1A2';
+      normal_15 : String[5] := '$1A3';
+      normal_16 : String[5] := '$1A4';
+      normal_22 : String[5] := '$1AA';
+      normal_24 : String[5] := '$1AB';
+      normal_30 : String[5] := '$1AD';
+      normal_32 : String[5] := '$1AE';
+      normal_40 : String[5] := '$1AF';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Encoded: Formatting: Scroll Speed"
+VERSION : 0.1
+   STRUCT
+      slowest : String[5] := '$15';
+      slow : String[5] := '$16';
+      normal : String[5] := '$17';
+      fast : String[5] := '$18';
+      fastest : String[5] := '$19';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Encoded: Formatting: Vertical Alignment"
+VERSION : 0.1
+   STRUCT
+      middle_hold : String[5] := '$1B b';
+      fill_hold : String[5] := '$1B"b';
+      bottom_hold : String[5] := '$1B&b';
+      top_hold : String[5] := '$1B0b';
+      bottom_scroll : String[5] := '$1B a';
+      fill_scroll : String[5] := '$1B"a';
+      middle_scroll : String[5] := '$1B&a';
+      top_scroll : String[5] := '$1B0a';
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "ADP.Encode.Size_and_Face" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      size_and_face : String;
+      decoded : "ADP: Decoded: Size and Face";
+      encoded : "ADP: Encoded: Formatting: Size and Face";
+   END_VAR
+
+   VAR_TEMP 
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	IF #size_and_face = #decoded.bold_5 THEN
+	    #_return := #encoded.bold_5;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_11 THEN
+	    #_return := #encoded.bold_11;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_14 THEN
+	    #_return := #encoded.bold_14;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_15 THEN
+	    #_return := #encoded.bold_15;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_16 THEN
+	    #_return := #encoded.bold_16;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_22 THEN
+	    #_return := #encoded.bold_22;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_30 THEN
+	    #_return := #encoded.bold_30;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_32 THEN
+	    #_return := #encoded.bold_32;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_40 THEN
+	    #_return := #encoded.bold_40;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_5 THEN
+	    #_return := #encoded.normal_5;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_7 THEN
+	    #_return := #encoded.normal_7;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_9 THEN
+	    #_return := #encoded.normal_9;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_11 THEN
+	    #_return := #encoded.normal_11;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_14 THEN
+	    #_return := #encoded.normal_14;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_15 THEN
+	    #_return := #encoded.normal_15;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_16 THEN
+	    #_return := #encoded.normal_16;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_22 THEN
+	    #_return := #encoded.normal_22;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_24 THEN
+	    #_return := #encoded.normal_24;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_30 THEN
+	    #_return := #encoded.normal_30;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_32 THEN
+	    #_return := #encoded.normal_32;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_40 THEN
+	    #_return := #encoded.normal_40;
+	    GOTO RTRN;
+	END_IF;
+	RTRN:
+	#"ADP: Encode: Size and Face" := #_return;
+END_FUNCTION
+
+FUNCTION "ADP.Encode.Horizontal_Alignment" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      horizontal_alignment : String;
+      decoded : "ADP: Decoded: Horizontal Alignment";
+      encoded : "ADP: Encoded: Formatting: Horizontal Alignment";
+   END_VAR
+
+   VAR_TEMP 
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	IF #horizontal_alignment = #decoded.center THEN
+	    #_return := #encoded.center;
+	    GOTO RTRN;
+	END_IF;
+	IF #horizontal_alignment = #decoded.left THEN
+	    #_return := #encoded.left;
+	    GOTO RTRN;
+	END_IF;
+	IF #horizontal_alignment = #decoded.right THEN
+	    #_return := #encoded.right;
+	    GOTO RTRN;
+	END_IF;
+	RTRN:
+	#"ADP: Encode: Horizontal Alignment" := #_return;
+END_FUNCTION
+
+FUNCTION "ADP.Encode.Scroll_Speed" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      scroll_speed : String;
+      decoded : "ADP: Decoded: Scroll Speed";
+      encoded : "ADP: Encoded: Formatting: Scroll Speed";
+   END_VAR
+
+   VAR_TEMP 
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	IF #scroll_speed = #decoded.slowest THEN
+	    #_return := #encoded.slowest;
+	    GOTO RTRN;
+	END_IF;
+	IF #scroll_speed = #decoded.slow THEN
+	    #_return := #encoded.slow;
+	    GOTO RTRN;
+	END_IF;
+	IF #scroll_speed = #decoded.normal THEN
+	    #_return := #encoded.normal;
+	    GOTO RTRN;
+	END_IF;
+	IF #scroll_speed = #decoded.fast THEN
+	    #_return := #encoded.fast;
+	    GOTO RTRN;
+	END_IF;
+	IF #scroll_speed = #decoded.fastest THEN
+	    #_return := #encoded.fastest;
+	    GOTO RTRN;
+	END_IF;
+	RTRN:
+	#"ADP: Encode: Scroll Speed" := #_return;
+END_FUNCTION
+
+FUNCTION "ADP.Encode.Flashing" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      flash : String;
+      encoded : "ADP: Encoded: Formatting: Flashing";
+      decoded : "ADP: Decoded: Flash";
+   END_VAR
+
+   VAR_TEMP 
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	IF #flash = #decoded.off THEN
+	    #_return := #encoded.off;
+	    GOTO RTRN;
+	END_IF;
+	IF #flash = #decoded.on THEN
+	    #_return := #encoded.on;
+	    GOTO RTRN;
+	END_IF;
+	RTRN:
+	#"ADP: Encode: Flashing" := #_return;
+END_FUNCTION
+
+TYPE "ADP: Message Formats: Encoded"
+VERSION : 0.1
+   STRUCT
+      color : String [5];
+      flash : String [5];
+      scroll_speed : String [5];
+      size_and_face : String [5];
+      vertical_alignment : String [5];
+      horizontal_alignment : String [5];
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Message Formats: Decoded"
+VERSION : 0.1
+   STRUCT
+      color : String [20];
+      flash : String [20];
+      scroll_speed : String [20];
+      size_and_face : String [20];
+      vertical_alignment : String [20];
+      horizontal_alignment : String [20];
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Encoded: Formatting"
+VERSION : 0.1
+   STRUCT
+      color { S7_SetPoint := 'False'} : "ADP: Encoded: Formatting: Color";
+      flashing { S7_SetPoint := 'False'} : "ADP: Encoded: Formatting: Flashing";
+      horizontal_alignment { S7_SetPoint := 'False'} : "ADP: Encoded: Formatting: Horizontal Alignment";
+      line_control : "ADP: Encoded: Formatting: Line Control";
+      scroll_speed { S7_SetPoint := 'False'} : "ADP: Encoded: Formatting: Scroll Speed";
+      size_and_face { S7_SetPoint := 'False'} : "ADP: Encoded: Formatting: Size and Face";
+      vertical_alignment { S7_SetPoint := 'False'} : "ADP: Encoded: Formatting: Vertical Alignment";
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "ADP.Encode.Vertical_Alignment" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      vertical_alignment : String;
+      decoded : "ADP: Decoded: Vertical Alignment";
+      encoded : "ADP: Encoded: Formatting: Vertical Alignment";
+   END_VAR
+
+   VAR_TEMP 
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	IF #vertical_alignment = #decoded.bottom_hold THEN
+	    #_return := #encoded.bottom_hold;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #decoded.fill_hold THEN
+	    #_return := #encoded.fill_hold;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #decoded.middle_hold THEN
+	    #_return := #encoded.middle_hold;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #decoded.top_hold THEN
+	    #_return := #encoded.top_hold;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #decoded.bottom_scroll THEN
+	    #_return := #encoded.bottom_scroll;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #decoded.fill_scroll THEN
+	    #_return := #encoded.fill_scroll;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #decoded.middle_scroll THEN
+	    #_return := #encoded.middle_scroll;
+	    GOTO RTRN;
+	END_IF;
+	IF #vertical_alignment = #decoded.top_scroll THEN
+	    #_return := #encoded.top_scroll;
+	    GOTO RTRN;
+	END_IF;
+	RTRN:
+	#"ADP: Encode: Vertical Alignment" := #_return;
+END_FUNCTION
+
+TYPE "ADP: Decoded"
+VERSION : 0.1
+   STRUCT
+      color : "ADP: Decoded: Color";
+      flash : "ADP: Decoded: Flash";
+      horizontal_alignment : "ADP: Decoded: Horizontal Alignment";
+      line_control : "ADP: Decoded: Line Control";
+      scroll_speed : "ADP: Decoded: Scroll Speed";
+      size_and_face : "ADP: Decoded: Size and Face";
+      vertical_alignment : "ADP: Decoded: Vertical Alignment";
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "ADP.Encode.Color" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      color : String;
+      decoded : "ADP: Decoded: Color";
+      encoded : "ADP: Encoded: Formatting: Color";
+   END_VAR
+
+   VAR_TEMP 
+      _return : String;
+   END_VAR
+
+   VAR CONSTANT 
+      black : String := 'BLACK';
+      blue : String := 'BLUE';
+      green : String := 'GREEN';
+      m1 : String := 'MIX 1';
+      m2 : String := 'MIX 2';
+      m3 : String := 'MIX 3';
+      m4 : String := 'MIX 4';
+      red : String := 'RED';
+      white : String := 'WHITE';
+      yellow : String := 'YELLOW';
+   END_VAR
+
+
+BEGIN
+	IF #color = #decoded.black THEN
+	    #_return := #encoded.black;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #decoded.blue THEN
+	    #_return := #encoded.blue;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #decoded.green THEN
+	    #_return := #encoded.green;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #decoded.mix_1 THEN
+	    #_return := #encoded.mix_1;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #decoded.mix_2 THEN
+	    #_return := #encoded.mix_2;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #decoded.mix_3 THEN
+	    #_return := #encoded.mix_3;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #decoded.mix_4 THEN
+	    #_return := #encoded.mix_4;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #decoded.red THEN
+	    #_return := #encoded.red;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #decoded.white THEN
+	    #_return := #encoded.white;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #decoded.yellow THEN
+	    #_return := #encoded.yellow;
+	    GOTO RTRN;
+	END_IF;
+	RTRN:
+	#"ADP: Encode: Color" := #_return;
+END_FUNCTION
+
+FUNCTION "ADP.Encode" : "ADP: Message Formats: Encoded"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      formats : "ADP: Message Formats: Decoded";
+      adp_decoded : "ADP: Decoded";
+      adp_encoded : "ADP: Encoded: Formatting";
+   END_VAR
+
+   VAR_TEMP 
+      _ret : "ADP: Message Formats: Encoded";
+   END_VAR
+
+
+BEGIN
+	#_ret.color := "ADP: Encode: Color"(color := #formats.color,
+	                                    decoded := #adp_decoded.color,
+	                                    encoded := #adp_encoded.color);
+	#_ret.flash := "ADP: Encode: Flashing"(flash := #formats.flash,
+	                                       encoded := #adp_encoded.flashing,
+	                                       decoded := #adp_decoded.flash);
+	#_ret.horizontal_alignment := "ADP: Encode: Horizontal Alignment"(horizontal_alignment := #formats.horizontal_alignment,
+	                                                                  decoded := #adp_decoded.horizontal_alignment,
+	                                                                  encoded := #adp_encoded.horizontal_alignment);
+	#_ret.scroll_speed := "ADP: Encode: Scroll Speed"(scroll_speed := #formats.scroll_speed,
+	                                                  decoded := #adp_decoded.scroll_speed,
+	                                                  encoded := #adp_encoded.scroll_speed);
+	#_ret.size_and_face := "ADP: Encode: Size and Face"(size_and_face := #formats.size_and_face,
+	                                                    decoded := #adp_decoded.size_and_face,
+	                                                    encoded := #adp_encoded.size_and_face);
+	#_ret.vertical_alignment := "ADP: Encode: Vertical Alignment"(vertical_alignment := #formats.vertical_alignment,
+	                                                              decoded := #adp_decoded.vertical_alignment,
+	                                                              encoded := #adp_encoded.vertical_alignment);
+	#"ADP: Encode" := #_ret;
+END_FUNCTION
+

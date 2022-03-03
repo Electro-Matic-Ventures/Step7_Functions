@@ -1,0 +1,93 @@
+﻿TYPE "ADP: Encoded: Formatting: Color"
+VERSION : 0.1
+   STRUCT
+      black { S7_SetPoint := 'True'} : String[5] := '$1C0';
+      blue : String[5] := '$1C8';
+      green : String[5] := '$1C2';
+      mix_1 : String[5] := '$1C4';
+      mix_2 : String[5] := '$1C5';
+      mix_3 : String[5] := '$1C6';
+      mix_4 : String[5] := '$1CY';
+      red : String[5] := '$1C1';
+      white : String[5] := '$1C9';
+      yellow : String[5] := '$1C3';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Decoded: Color"
+VERSION : 0.1
+   STRUCT
+      black : String[8] := 'black';
+      blue : String[8] := 'blue';
+      green : String[8] := 'green';
+      mix_1 : String[8] := 'mix 1';
+      mix_2 : String[8] := 'mix 2';
+      mix_3 : String[8] := 'mix 3';
+      mix_4 : String[8] := 'mix 4';
+      red : String[8] := 'red';
+      white : String[8] := 'white';
+      yellow : String[8] := 'yellow';
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "ADP.Decode.Color" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      color : String;
+      encoded : "ADP: Encoded: Formatting: Color";
+      decoded : "ADP: Decoded: Color";
+   END_VAR
+
+   VAR_TEMP 
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	IF #color = #encoded.black THEN
+	    #_return := #decoded.black;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #encoded.blue THEN
+	    #_return := #decoded.blue;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #encoded.green THEN
+	    #_return := #decoded.green;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #encoded.mix_1 THEN
+	    #_return := #decoded.mix_1;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #encoded.mix_2 THEN
+	    #_return := #decoded.mix_2;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #encoded.mix_3 THEN
+	    #_return := #decoded.mix_3;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #encoded.mix_4 THEN
+	    #_return := #decoded.mix_4;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #encoded.red THEN
+	    #_return := #decoded.red;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #encoded.white THEN
+	    #_return := #decoded.white;
+	    GOTO RTRN;
+	END_IF;
+	IF #color = #encoded.yellow THEN
+	    #_return := #decoded.yellow;
+	    GOTO RTRN;
+	END_IF;
+	RTRN:
+	#"ADP: Decode: Color" := #_return;
+END_FUNCTION
+

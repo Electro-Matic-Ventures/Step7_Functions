@@ -1,0 +1,159 @@
+﻿TYPE "ADP: Decoded: Size and Face"
+VERSION : 0.1
+   STRUCT
+      bold_5 : String[11] := 'bold 5';
+      bold_11 : String[11] := 'bold 11';
+      bold_14 : String[11] := 'bold 14';
+      bold_15 : String[11] := 'bold 15';
+      bold_16 : String[11] := 'bold 16';
+      bold_22 : String[11] := 'bold 22';
+      bold_30 : String[11] := 'bold 30';
+      bold_32 : String[11] := 'bold 32';
+      bold_40 : String[11] := 'bold 40';
+      normal_5 : String[11] := 'normal 5';
+      normal_7 : String[11] := 'normal 7';
+      normal_9 : String[11] := 'normal 9';
+      normal_11 : String[11] := 'normal 11';
+      normal_14 : String[11] := 'normal 14';
+      normal_15 : String[11] := 'normal 15';
+      normal_16 : String[11] := 'normal 16';
+      normal_22 : String[11] := 'normal 22';
+      normal_24 : String[11] := 'normal 24';
+      normal_30 : String[11] := 'normal 30';
+      normal_32 : String[11] := 'normal 32';
+      normal_40 : String[11] := 'normal 40';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Encoded: Formatting: Size and Face"
+VERSION : 0.1
+   STRUCT
+      bold_5 : String[5] := '$1AG';
+      bold_11 : String[5] := '$1AH';
+      bold_14 : String[5] := '$1A5';
+      bold_15 : String[5] := '$1A6';
+      bold_16 : String[5] := '$1A7';
+      bold_22 : String[5] := '$1AC';
+      bold_30 : String[5] := '$1AI';
+      bold_32 : String[5] := '$1AJ';
+      bold_40 : String[5] := '$1AK';
+      normal_5 { S7_SetPoint := 'True'} : String[5] := '$1A0';
+      normal_7 : String[5] := '$1A1';
+      normal_9 : String[5] := '$1A8';
+      normal_11 : String[5] := '$1A9';
+      normal_14 : String[5] := '$1A2';
+      normal_15 : String[5] := '$1A3';
+      normal_16 : String[5] := '$1A4';
+      normal_22 : String[5] := '$1AA';
+      normal_24 : String[5] := '$1AB';
+      normal_30 : String[5] := '$1AD';
+      normal_32 : String[5] := '$1AE';
+      normal_40 : String[5] := '$1AF';
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "ADP.Encode.Size_and_Face" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      size_and_face : String;
+      decoded : "ADP: Decoded: Size and Face";
+      encoded : "ADP: Encoded: Formatting: Size and Face";
+   END_VAR
+
+   VAR_TEMP 
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	IF #size_and_face = #decoded.bold_5 THEN
+	    #_return := #encoded.bold_5;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_11 THEN
+	    #_return := #encoded.bold_11;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_14 THEN
+	    #_return := #encoded.bold_14;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_15 THEN
+	    #_return := #encoded.bold_15;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_16 THEN
+	    #_return := #encoded.bold_16;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_22 THEN
+	    #_return := #encoded.bold_22;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_30 THEN
+	    #_return := #encoded.bold_30;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_32 THEN
+	    #_return := #encoded.bold_32;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.bold_40 THEN
+	    #_return := #encoded.bold_40;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_5 THEN
+	    #_return := #encoded.normal_5;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_7 THEN
+	    #_return := #encoded.normal_7;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_9 THEN
+	    #_return := #encoded.normal_9;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_11 THEN
+	    #_return := #encoded.normal_11;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_14 THEN
+	    #_return := #encoded.normal_14;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_15 THEN
+	    #_return := #encoded.normal_15;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_16 THEN
+	    #_return := #encoded.normal_16;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_22 THEN
+	    #_return := #encoded.normal_22;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_24 THEN
+	    #_return := #encoded.normal_24;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_30 THEN
+	    #_return := #encoded.normal_30;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_32 THEN
+	    #_return := #encoded.normal_32;
+	    GOTO RTRN;
+	END_IF;
+	IF #size_and_face = #decoded.normal_40 THEN
+	    #_return := #encoded.normal_40;
+	    GOTO RTRN;
+	END_IF;
+	RTRN:
+	#"ADP: Encode: Size and Face" := #_return;
+END_FUNCTION
+

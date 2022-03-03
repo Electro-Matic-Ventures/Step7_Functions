@@ -1,0 +1,45 @@
+﻿TYPE "ADP: Encoded: Formatting: Flashing"
+VERSION : 0.1
+   STRUCT
+      off : String[5] := '$070';
+      on : String[5] := '$071';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Decoded: Flash"
+VERSION : 0.1
+   STRUCT
+      off : String[8] := 'off';
+      on : String[8] := 'on';
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "ADP.Encode.Flashing" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      flash : String;
+      encoded : "ADP: Encoded: Formatting: Flashing";
+      decoded : "ADP: Decoded: Flash";
+   END_VAR
+
+   VAR_TEMP 
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	IF #flash = #decoded.off THEN
+	    #_return := #encoded.off;
+	    GOTO RTRN;
+	END_IF;
+	IF #flash = #decoded.on THEN
+	    #_return := #encoded.on;
+	    GOTO RTRN;
+	END_IF;
+	RTRN:
+	#"ADP: Encode: Flashing" := #_return;
+END_FUNCTION
+

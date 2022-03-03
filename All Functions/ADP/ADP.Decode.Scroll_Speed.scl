@@ -1,0 +1,63 @@
+﻿TYPE "ADP: Encoded: Formatting: Scroll Speed"
+VERSION : 0.1
+   STRUCT
+      slowest : String[5] := '$15';
+      slow : String[5] := '$16';
+      normal : String[5] := '$17';
+      fast : String[5] := '$18';
+      fastest : String[5] := '$19';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP: Decoded: Scroll Speed"
+VERSION : 0.1
+   STRUCT
+      slowest : String[9] := 'slowest';
+      slow : String[9] := 'slow';
+      normal : String[9] := 'normal';
+      fast : String[9] := 'fast';
+      fastest : String[9] := 'fastest';
+   END_STRUCT;
+
+END_TYPE
+
+FUNCTION "ADP.Decode.Scroll_Speed" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      scroll_speed : String;
+      decoded : "ADP: Decoded: Scroll Speed";
+      encoded : "ADP: Encoded: Formatting: Scroll Speed";
+   END_VAR
+
+   VAR_TEMP 
+      _return : String;
+   END_VAR
+
+
+BEGIN
+	IF #scroll_speed = #encoded.slowest THEN
+	    #_return := #decoded.slowest;
+	    GOTO RTRN;
+	END_IF;
+	IF #scroll_speed = #encoded.slow THEN
+	    #_return := #decoded.slow;
+	    GOTO RTRN;
+	END_IF;
+	IF #scroll_speed = #encoded.normal THEN
+	    #_return := #decoded.normal;
+	    GOTO RTRN;
+	END_IF;
+	IF #scroll_speed = #encoded.fast THEN
+	    #_return := #decoded.fast;
+	    GOTO RTRN;
+	END_IF;
+	IF #scroll_speed = #encoded.fastest THEN
+	    #_return := #decoded.fastest;
+	    GOTO RTRN;
+	END_IF;
+	RTRN:
+	#"ADP: Decode: Scroll Speed" := #_return;
+END_FUNCTION
+
