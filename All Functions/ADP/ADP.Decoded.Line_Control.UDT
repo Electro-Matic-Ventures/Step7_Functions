@@ -1,0 +1,9 @@
+﻿TYPE "ADP.Decoded.Line_Control.UDT"
+VERSION : 0.1
+   STRUCT
+      new_line : String[9] := 'new line';
+      word_wrap : String[9] := 'word wrap';
+   END_STRUCT;
+
+END_TYPE
+

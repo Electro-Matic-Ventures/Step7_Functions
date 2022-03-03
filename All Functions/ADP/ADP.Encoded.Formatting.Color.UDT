@@ -1,0 +1,17 @@
+﻿TYPE "ADP.Encoded.Formatting.Color.UDT"
+VERSION : 0.1
+   STRUCT
+      black { S7_SetPoint := 'True'} : String[5] := '$1C0';
+      blue : String[5] := '$1C8';
+      green : String[5] := '$1C2';
+      mix_1 : String[5] := '$1C4';
+      mix_2 : String[5] := '$1C5';
+      mix_3 : String[5] := '$1C6';
+      mix_4 : String[5] := '$1CY';
+      red : String[5] := '$1C1';
+      white : String[5] := '$1C9';
+      yellow : String[5] := '$1C3';
+   END_STRUCT;
+
+END_TYPE
+

@@ -1,0 +1,28 @@
+﻿TYPE "ADP.Encoded.Formatting.Size_and_Face.UDT"
+VERSION : 0.1
+   STRUCT
+      bold_5 : String[5] := '$1AG';
+      bold_11 : String[5] := '$1AH';
+      bold_14 : String[5] := '$1A5';
+      bold_15 : String[5] := '$1A6';
+      bold_16 : String[5] := '$1A7';
+      bold_22 : String[5] := '$1AC';
+      bold_30 : String[5] := '$1AI';
+      bold_32 : String[5] := '$1AJ';
+      bold_40 : String[5] := '$1AK';
+      normal_5 { S7_SetPoint := 'True'} : String[5] := '$1A0';
+      normal_7 : String[5] := '$1A1';
+      normal_9 : String[5] := '$1A8';
+      normal_11 : String[5] := '$1A9';
+      normal_14 : String[5] := '$1A2';
+      normal_15 : String[5] := '$1A3';
+      normal_16 : String[5] := '$1A4';
+      normal_22 : String[5] := '$1AA';
+      normal_24 : String[5] := '$1AB';
+      normal_30 : String[5] := '$1AD';
+      normal_32 : String[5] := '$1AE';
+      normal_40 : String[5] := '$1AF';
+   END_STRUCT;
+
+END_TYPE
+

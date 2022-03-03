@@ -1,0 +1,9 @@
+﻿TYPE "ADP.Encoded.Formatting.Flashing.UDT"
+VERSION : 0.1
+   STRUCT
+      off : String[5] := '$070';
+      on : String[5] := '$071';
+   END_STRUCT;
+
+END_TYPE
+

@@ -1,0 +1,9 @@
+﻿TYPE "ADP.Encoded.Formatting.Line_Control.UDT"
+VERSION : 0.1
+   STRUCT
+      new_line : String[5] := '$R';
+      word_wrap : String[5] := '';
+   END_STRUCT;
+
+END_TYPE
+

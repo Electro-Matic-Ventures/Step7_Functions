@@ -1,0 +1,13 @@
+﻿TYPE "ADP.Message_Formats.Encoded.UDT"
+VERSION : 0.1
+   STRUCT
+      color : String [5];
+      flash : String [5];
+      scroll_speed : String [5];
+      size_and_face : String [5];
+      vertical_alignment : String [5];
+      horizontal_alignment : String [5];
+   END_STRUCT;
+
+END_TYPE
+

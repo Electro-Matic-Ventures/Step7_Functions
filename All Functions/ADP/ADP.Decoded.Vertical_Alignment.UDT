@@ -1,0 +1,15 @@
+﻿TYPE "ADP.Decoded.Vertical_Alignment.UDT"
+VERSION : 0.1
+   STRUCT
+      bottom_hold : String[15] := 'bottom hold';
+      fill_hold : String[15] := 'fill hold';
+      middle_hold : String[15] := 'middle hold';
+      top_hold : String[15] := 'top hold';
+      bottom_scroll : String[15] := 'bottom scroll';
+      fill_scroll : String[15] := 'fill scroll';
+      middle_scroll : String[15] := 'middle scroll';
+      top_scroll : String[15] := 'top scroll';
+   END_STRUCT;
+
+END_TYPE
+

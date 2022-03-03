@@ -1,0 +1,12 @@
+﻿TYPE "ADP.Decoded.Scroll_Speed.UDT"
+VERSION : 0.1
+   STRUCT
+      slowest : String[9] := 'slowest';
+      slow : String[9] := 'slow';
+      normal : String[9] := 'normal';
+      fast : String[9] := 'fast';
+      fastest : String[9] := 'fastest';
+   END_STRUCT;
+
+END_TYPE
+

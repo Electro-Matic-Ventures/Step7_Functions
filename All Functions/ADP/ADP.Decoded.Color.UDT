@@ -1,0 +1,17 @@
+﻿TYPE "ADP.Decoded.Color.UDT"
+VERSION : 0.1
+   STRUCT
+      black : String[8] := 'black';
+      blue : String[8] := 'blue';
+      green : String[8] := 'green';
+      mix_1 : String[8] := 'mix 1';
+      mix_2 : String[8] := 'mix 2';
+      mix_3 : String[8] := 'mix 3';
+      mix_4 : String[8] := 'mix 4';
+      red : String[8] := 'red';
+      white : String[8] := 'white';
+      yellow : String[8] := 'yellow';
+   END_STRUCT;
+
+END_TYPE
+

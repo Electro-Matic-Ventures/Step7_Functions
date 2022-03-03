@@ -1,0 +1,10 @@
+﻿TYPE "ADP.Decoded.Horizontal_Alignment.UDT"
+VERSION : 0.1
+   STRUCT
+      center : String[8] := 'center';
+      left : String[8] := 'left';
+      right : String[8] := 'right';
+   END_STRUCT;
+
+END_TYPE
+

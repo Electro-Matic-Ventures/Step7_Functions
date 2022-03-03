@@ -1,0 +1,15 @@
+﻿TYPE "ADP.Encoded.Formatting.Vertical_Alignment.UDT"
+VERSION : 0.1
+   STRUCT
+      middle_hold : String[5] := '$1B b';
+      fill_hold : String[5] := '$1B"b';
+      bottom_hold : String[5] := '$1B&b';
+      top_hold : String[5] := '$1B0b';
+      bottom_scroll : String[5] := '$1B a';
+      fill_scroll : String[5] := '$1B"a';
+      middle_scroll : String[5] := '$1B&a';
+      top_scroll : String[5] := '$1B0a';
+   END_STRUCT;
+
+END_TYPE
+

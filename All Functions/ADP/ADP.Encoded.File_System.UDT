@@ -1,0 +1,12 @@
+﻿TYPE "ADP.Encoded.File_System.UDT"
+VERSION : 0.1
+   STRUCT
+      "00 Start of Header" { S7_SetPoint := 'True'} : String[5] := '$01';
+      "01 Address" { S7_SetPoint := 'True'} : String[5] := 'Z00';
+      "02 Start of Text" { S7_SetPoint := 'True'} : String[5] := '$02';
+      "03 Command & File" { S7_SetPoint := 'True'} : String[5] := 'AA';
+      "04 END" : String[5] := '$04';
+   END_STRUCT;
+
+END_TYPE
+

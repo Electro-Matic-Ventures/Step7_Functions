@@ -1,0 +1,28 @@
+﻿TYPE "ADP.Decoded.Size_and_Face.UDT"
+VERSION : 0.1
+   STRUCT
+      bold_5 : String[11] := 'bold 5';
+      bold_11 : String[11] := 'bold 11';
+      bold_14 : String[11] := 'bold 14';
+      bold_15 : String[11] := 'bold 15';
+      bold_16 : String[11] := 'bold 16';
+      bold_22 : String[11] := 'bold 22';
+      bold_30 : String[11] := 'bold 30';
+      bold_32 : String[11] := 'bold 32';
+      bold_40 : String[11] := 'bold 40';
+      normal_5 : String[11] := 'normal 5';
+      normal_7 : String[11] := 'normal 7';
+      normal_9 : String[11] := 'normal 9';
+      normal_11 : String[11] := 'normal 11';
+      normal_14 : String[11] := 'normal 14';
+      normal_15 : String[11] := 'normal 15';
+      normal_16 : String[11] := 'normal 16';
+      normal_22 : String[11] := 'normal 22';
+      normal_24 : String[11] := 'normal 24';
+      normal_30 : String[11] := 'normal 30';
+      normal_32 : String[11] := 'normal 32';
+      normal_40 : String[11] := 'normal 40';
+   END_STRUCT;
+
+END_TYPE
+

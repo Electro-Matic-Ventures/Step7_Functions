@@ -1,0 +1,10 @@
+﻿TYPE "ADP.Encoded.Formatting.Horizonta_Alignment.UDT"
+VERSION : 0.1
+   STRUCT
+      center : String[5] := '$L1';
+      left : String[5] := '$L0';
+      right : String[5] := '$L2';
+   END_STRUCT;
+
+END_TYPE
+

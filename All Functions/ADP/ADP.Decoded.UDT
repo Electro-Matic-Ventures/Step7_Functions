@@ -1,0 +1,114 @@
+﻿TYPE "ADP.Decoded.Color.UDT"
+VERSION : 0.1
+   STRUCT
+      black : String[8] := 'black';
+      blue : String[8] := 'blue';
+      green : String[8] := 'green';
+      mix_1 : String[8] := 'mix 1';
+      mix_2 : String[8] := 'mix 2';
+      mix_3 : String[8] := 'mix 3';
+      mix_4 : String[8] := 'mix 4';
+      red : String[8] := 'red';
+      white : String[8] := 'white';
+      yellow : String[8] := 'yellow';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Decoded.Flash.UDT"
+VERSION : 0.1
+   STRUCT
+      off : String[8] := 'off';
+      on : String[8] := 'on';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Decoded.Horizontal_Alignment.UDT"
+VERSION : 0.1
+   STRUCT
+      center : String[8] := 'center';
+      left : String[8] := 'left';
+      right : String[8] := 'right';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Decoded.Size_and_Face.UDT"
+VERSION : 0.1
+   STRUCT
+      bold_5 : String[11] := 'bold 5';
+      bold_11 : String[11] := 'bold 11';
+      bold_14 : String[11] := 'bold 14';
+      bold_15 : String[11] := 'bold 15';
+      bold_16 : String[11] := 'bold 16';
+      bold_22 : String[11] := 'bold 22';
+      bold_30 : String[11] := 'bold 30';
+      bold_32 : String[11] := 'bold 32';
+      bold_40 : String[11] := 'bold 40';
+      normal_5 : String[11] := 'normal 5';
+      normal_7 : String[11] := 'normal 7';
+      normal_9 : String[11] := 'normal 9';
+      normal_11 : String[11] := 'normal 11';
+      normal_14 : String[11] := 'normal 14';
+      normal_15 : String[11] := 'normal 15';
+      normal_16 : String[11] := 'normal 16';
+      normal_22 : String[11] := 'normal 22';
+      normal_24 : String[11] := 'normal 24';
+      normal_30 : String[11] := 'normal 30';
+      normal_32 : String[11] := 'normal 32';
+      normal_40 : String[11] := 'normal 40';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Decoded.Vertical_Alignment.UDT"
+VERSION : 0.1
+   STRUCT
+      bottom_hold : String[15] := 'bottom hold';
+      fill_hold : String[15] := 'fill hold';
+      middle_hold : String[15] := 'middle hold';
+      top_hold : String[15] := 'top hold';
+      bottom_scroll : String[15] := 'bottom scroll';
+      fill_scroll : String[15] := 'fill scroll';
+      middle_scroll : String[15] := 'middle scroll';
+      top_scroll : String[15] := 'top scroll';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Decoded.Scroll_Speed.UDT"
+VERSION : 0.1
+   STRUCT
+      slowest : String[9] := 'slowest';
+      slow : String[9] := 'slow';
+      normal : String[9] := 'normal';
+      fast : String[9] := 'fast';
+      fastest : String[9] := 'fastest';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Decoded.Line_Control.UDT"
+VERSION : 0.1
+   STRUCT
+      new_line : String[9] := 'new line';
+      word_wrap : String[9] := 'word wrap';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Decoded.UDT"
+VERSION : 0.1
+   STRUCT
+      color : "ADP: Decoded: Color";
+      flash : "ADP: Decoded: Flash";
+      horizontal_alignment : "ADP: Decoded: Horizontal Alignment";
+      line_control : "ADP: Decoded: Line Control";
+      scroll_speed : "ADP: Decoded: Scroll Speed";
+      size_and_face : "ADP: Decoded: Size and Face";
+      vertical_alignment : "ADP: Decoded: Vertical Alignment";
+   END_STRUCT;
+
+END_TYPE
+

@@ -1,0 +1,12 @@
+﻿TYPE "ADP.Encoded.Formatting.Scroll_Speed.UDT"
+VERSION : 0.1
+   STRUCT
+      slowest : String[5] := '$15';
+      slow : String[5] := '$16';
+      normal : String[5] := '$17';
+      fast : String[5] := '$18';
+      fastest : String[5] := '$19';
+   END_STRUCT;
+
+END_TYPE
+

@@ -1,0 +1,135 @@
+﻿TYPE "ADP.Encoded.Formatting.Color.UDT"
+VERSION : 0.1
+   STRUCT
+      black { S7_SetPoint := 'True'} : String[5] := '$1C0';
+      blue : String[5] := '$1C8';
+      green : String[5] := '$1C2';
+      mix_1 : String[5] := '$1C4';
+      mix_2 : String[5] := '$1C5';
+      mix_3 : String[5] := '$1C6';
+      mix_4 : String[5] := '$1CY';
+      red : String[5] := '$1C1';
+      white : String[5] := '$1C9';
+      yellow : String[5] := '$1C3';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Encoded.Formatting.Flashing.UDT"
+VERSION : 0.1
+   STRUCT
+      off : String[5] := '$070';
+      on : String[5] := '$071';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Encoded.Formatting.Size_and_Face.UDT"
+VERSION : 0.1
+   STRUCT
+      bold_5 : String[5] := '$1AG';
+      bold_11 : String[5] := '$1AH';
+      bold_14 : String[5] := '$1A5';
+      bold_15 : String[5] := '$1A6';
+      bold_16 : String[5] := '$1A7';
+      bold_22 : String[5] := '$1AC';
+      bold_30 : String[5] := '$1AI';
+      bold_32 : String[5] := '$1AJ';
+      bold_40 : String[5] := '$1AK';
+      normal_5 { S7_SetPoint := 'True'} : String[5] := '$1A0';
+      normal_7 : String[5] := '$1A1';
+      normal_9 : String[5] := '$1A8';
+      normal_11 : String[5] := '$1A9';
+      normal_14 : String[5] := '$1A2';
+      normal_15 : String[5] := '$1A3';
+      normal_16 : String[5] := '$1A4';
+      normal_22 : String[5] := '$1AA';
+      normal_24 : String[5] := '$1AB';
+      normal_30 : String[5] := '$1AD';
+      normal_32 : String[5] := '$1AE';
+      normal_40 : String[5] := '$1AF';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Encoded.Formatting.Horizonta_Alignment.UDT"
+VERSION : 0.1
+   STRUCT
+      center : String[5] := '$L1';
+      left : String[5] := '$L0';
+      right : String[5] := '$L2';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Encoded.Formatting.Vertical_Alignment.UDT"
+VERSION : 0.1
+   STRUCT
+      middle_hold : String[5] := '$1B b';
+      fill_hold : String[5] := '$1B"b';
+      bottom_hold : String[5] := '$1B&b';
+      top_hold : String[5] := '$1B0b';
+      bottom_scroll : String[5] := '$1B a';
+      fill_scroll : String[5] := '$1B"a';
+      middle_scroll : String[5] := '$1B&a';
+      top_scroll : String[5] := '$1B0a';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Encoded.Formatting.Scroll_Speed.UDT"
+VERSION : 0.1
+   STRUCT
+      slowest : String[5] := '$15';
+      slow : String[5] := '$16';
+      normal : String[5] := '$17';
+      fast : String[5] := '$18';
+      fastest : String[5] := '$19';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Encoded.Formatting.Line_Control.UDT"
+VERSION : 0.1
+   STRUCT
+      new_line : String[5] := '$R';
+      word_wrap : String[5] := '';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Encoded.File_System.UDT"
+VERSION : 0.1
+   STRUCT
+      "00 Start of Header" { S7_SetPoint := 'True'} : String[5] := '$01';
+      "01 Address" { S7_SetPoint := 'True'} : String[5] := 'Z00';
+      "02 Start of Text" { S7_SetPoint := 'True'} : String[5] := '$02';
+      "03 Command & File" { S7_SetPoint := 'True'} : String[5] := 'AA';
+      "04 END" : String[5] := '$04';
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Encoded.Formatting.UDT"
+VERSION : 0.1
+   STRUCT
+      color { S7_SetPoint := 'False'} : "ADP: Encoded: Formatting: Color";
+      flashing { S7_SetPoint := 'False'} : "ADP: Encoded: Formatting: Flashing";
+      horizontal_alignment { S7_SetPoint := 'False'} : "ADP: Encoded: Formatting: Horizontal Alignment";
+      line_control : "ADP: Encoded: Formatting: Line Control";
+      scroll_speed { S7_SetPoint := 'False'} : "ADP: Encoded: Formatting: Scroll Speed";
+      size_and_face { S7_SetPoint := 'False'} : "ADP: Encoded: Formatting: Size and Face";
+      vertical_alignment { S7_SetPoint := 'False'} : "ADP: Encoded: Formatting: Vertical Alignment";
+   END_STRUCT;
+
+END_TYPE
+
+TYPE "ADP.Encoded.UDT"
+VERSION : 0.1
+   STRUCT
+      file_system : "ADP: Encoded: File System";
+      formatting : "ADP: Encoded: Formatting";
+   END_STRUCT;
+
+END_TYPE
+
