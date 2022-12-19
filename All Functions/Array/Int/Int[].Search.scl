@@ -1,0 +1,47 @@
+﻿FUNCTION "Int[].Search" : Int
+TITLE = Search Array of Integers
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Machado
+FAMILY : 'Int[]'
+VERSION : 0.1
+//Returns first occurance of indicated value in an array of integer.
+//
+//Returns -1 if not found.
+   VAR_INPUT 
+      haystack : Array[*] of Int;   // array to be searched
+      needle : Int;   // value to be found
+   END_VAR
+
+   VAR_TEMP 
+      size : DInt;
+      i : DInt;
+   END_VAR
+
+
+BEGIN
+	REGION "NOTES"
+	    (**)
+	END_REGION
+	
+	
+	REGION "GET SIZE"
+	    #size := UDINT_TO_INT("Int[].CountOfElement"(#haystack));
+	END_REGION
+	
+	
+	REGION "SEARCH"
+	    FOR #i := 0 TO #size - 1 DO
+	        IF #haystack[#i] = #needle THEN
+	            #"Int[].Search" := DINT_TO_INT(#i);
+	            RETURN;
+	        END_IF;
+	    END_FOR;
+	END_REGION
+	
+	
+	REGION "RETURN NOT FOUND"
+	    #"Int[].Search" := -1;
+	    RETURN;
+	END_REGION
+END_FUNCTION
+
