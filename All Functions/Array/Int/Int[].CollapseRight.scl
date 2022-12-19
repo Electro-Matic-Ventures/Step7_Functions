@@ -1,0 +1,51 @@
+﻿FUNCTION "Int[].CollapseRight" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      null_token : Int;   // int value used as null in your project
+   END_VAR
+
+   VAR_IN_OUT 
+      "array" : Array[*] of Int;   // array to be collapsed
+   END_VAR
+
+   VAR_TEMP 
+      i : DInt;
+      scanner : DInt;
+      size : DInt;
+   END_VAR
+
+
+BEGIN
+	REGION "NOTES"
+	    (**)
+	END_REGION
+	
+	REGION "GET SIZE"
+	    #size := UDINT_TO_DINT("Int[].CountOfElement"(#array));
+	END_REGION
+	
+	
+	REGION "SCAN"
+	    FOR #i := #size - 1 TO 0 BY -1 DO
+	        IF #array[#i] <> #null_token THEN
+	            CONTINUE;
+	        END_IF;
+	        #scanner := #i;
+	        WHILE #array[#scanner] = #null_token DO
+	            #scanner -= 1;
+	            IF #scanner < 0 THEN
+	                RETURN;
+	            END_IF;
+	        END_WHILE;
+	        #array[#i] := #array[#scanner];
+	        #array[#scanner] := #null_token;
+	    END_FOR;
+	END_REGION
+	
+	
+	REGION "RETURN"
+	    RETURN;
+	END_REGION
+END_FUNCTION
+
