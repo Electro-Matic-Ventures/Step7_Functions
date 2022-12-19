@@ -1,0 +1,37 @@
+﻿FUNCTION "Int[].Clear" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      null_token : Int;   // null representation in your project
+   END_VAR
+
+   VAR_IN_OUT 
+      "array" : Array[*] of Int;   // array to be cleared
+   END_VAR
+
+   VAR_TEMP 
+      i : DInt;
+      size : DInt;
+   END_VAR
+
+
+BEGIN
+	REGION "NOTES"
+	    (*
+	    Alias for Int[].Fill
+	    *)
+	END_REGION
+	
+	
+	REGION "FILL"
+	    "Int[].Fill"(value := #null_token,
+	                 data := #array);
+	END_REGION
+	
+	
+	REGION "RETURN"
+	    RETURN;
+	END_REGION
+	
+END_FUNCTION
+

@@ -1,0 +1,138 @@
+﻿FUNCTION "Array.Any.Length" : UDInt
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "array" : Variant;
+   END_VAR
+
+   VAR_TEMP 
+      status : DInt;
+      ret : UDInt;
+   END_VAR
+
+
+BEGIN
+	#ret := CountOfElements(#array);
+	#"Array.Any.Length" := #ret;
+END_FUNCTION
+
+FUNCTION "Code_128.Calculate_Checksum" : Int
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      characters : Array[0..255] of Byte;
+      count : UInt;
+   END_VAR
+
+   VAR_TEMP 
+      _check_sum : Int;
+      _i : Int;
+   END_VAR
+
+
+BEGIN
+	#_check_sum := 104;
+	FOR #_i := 0 TO UINT_TO_INT(#count - 1) DO
+	    #_check_sum := #_check_sum + (BYTE_TO_INT(#characters[#_i]) - 32) * (#_i + 1);
+	END_FOR;
+	#_check_sum := (#_check_sum MOD 103) + 32;
+	IF #_check_sum >= 127 THEN
+	    #_check_sum := #_check_sum + 68;
+	END_IF;
+	#"Code_128.Calculate_Checksum" := #_check_sum;
+END_FUNCTION
+
+FUNCTION "Byte.Array.Shift" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      shift_by : Int;
+   END_VAR
+
+   VAR_IN_OUT 
+      characters : Array[*] of Byte;
+   END_VAR
+
+   VAR_TEMP 
+      _by : Int;
+      _i : Int;
+      _length : Int;
+      _offset : Int;
+      _start : Int;
+      _stop : Int;
+   END_VAR
+
+
+BEGIN
+	IF #shift_by = 0 THEN
+	    RETURN;
+	END_IF;
+	
+	#_length := UDINT_TO_INT("Array.Any.Length"(#characters)) - 1;
+	
+	IF #shift_by < 0 THEN
+	    #_start := 0;
+	    #_stop := #_length;
+	    #_by := 1;
+	END_IF;
+	
+	IF #shift_by > 0 THEN
+	    #_start := #_length;
+	    #_stop := 0;
+	    #_by := -1;
+	END_IF;
+	
+	FOR #_i := #_start TO #_stop BY #_by DO
+	    #_offset := #_i - #shift_by;
+	    IF #_offset < 0 THEN
+	        EXIT;
+	    END_IF;
+	    IF #_offset > #_length THEN
+	        EXIT;
+	    END_IF;
+	    #characters[#_i] := #characters[#_offset];
+	    #characters[#_offset] := ' ';
+	END_FOR;
+	
+END_FUNCTION
+
+FUNCTION "Code_128.String_to_Code" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      part_number : String;
+   END_VAR
+
+   VAR_TEMP 
+      _characters : Array[0..255] of Byte;
+      _check_sum : Int;
+      _count : UInt;
+      _i : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      START : Char := 'Ì';
+      STOP : Char := 'Î';
+   END_VAR
+
+
+BEGIN
+	Strg_TO_Chars(Strg := #part_number,
+	              pChars := 0,
+	              Cnt => #_count,
+	              Chars := #_characters);
+	
+	#_check_sum := "Code_128.Calculate_Checksum"(characters := #_characters,
+	                                             count := #_count);
+	"Byte.Array.Shift"(shift_by := 1,
+	                   characters := #_characters);
+	#_characters[0] := CHAR_TO_BYTE(#START);
+	#_characters[#_count + 1] := INT_TO_BYTE(#_check_sum);
+	#_characters[#_count + 2] := CHAR_TO_BYTE(#STOP);
+	
+	Chars_TO_Strg(Chars := #_characters,
+	              pChars := 0,
+	              Cnt := #_count + 3,
+	              Strg => #"Code_128.String_to_Code"); 
+END_FUNCTION
+

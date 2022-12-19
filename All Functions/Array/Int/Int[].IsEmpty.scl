@@ -1,0 +1,38 @@
+﻿FUNCTION "Int[].IsEmpty" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "array" : Array[*] of Int;   // array to be checked
+      null_value : Int;   // int value that represents null in your project
+   END_VAR
+
+   VAR_TEMP 
+      i : DInt;
+      size : DInt;
+   END_VAR
+
+
+BEGIN
+	REGION "NOTES"
+	    (*
+	    Updated to use variable length arrays.
+	    *)
+	END_REGION
+	
+	REGION "GET ARRAY SIZE"
+	    #size := UDINT_TO_DINT("Int[].CountOfElement"(#array));
+	END_REGION
+	
+	REGION "CHECK VALUES"
+	    FOR #i := 0 TO #size - 1 DO
+	        IF #array[#i] <> #null_value THEN
+	            #"Int[].IsEmpty" := FALSE;
+	            RETURN;        END_IF;
+	    END_FOR;
+	END_REGION
+	
+	REGION "ALL VALUES NULL"
+	    #"Int[].IsEmpty" := TRUE;
+	END_REGION
+END_FUNCTION
+

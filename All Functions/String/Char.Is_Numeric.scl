@@ -1,0 +1,21 @@
+﻿FUNCTION "Char.Is_Numeric" : Bool
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      character : Char;
+   END_VAR
+
+   VAR CONSTANT 
+      NUMBERS : String := '0123456789';
+   END_VAR
+
+
+BEGIN
+	IF FIND(IN1 := #NUMBERS, IN2 := CHAR_TO_STRING(#character)) = 0 THEN
+	    #"Char.Is_Numeric" := FALSE;
+	    RETURN;
+	END_IF;
+	#"Char.Is_Numeric" := TRUE;
+	RETURN;
+END_FUNCTION
+

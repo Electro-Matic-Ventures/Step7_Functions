@@ -1,0 +1,66 @@
+﻿FUNCTION "Int[].ShiftRight" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      places : DInt;   // must be positive
+   END_VAR
+
+   VAR_IN_OUT 
+      data : Array[*] of Int;
+   END_VAR
+
+   VAR_TEMP 
+      i : DInt;
+      size : DInt;
+   END_VAR
+
+
+BEGIN
+	REGION "PRE CONDITION"
+	    IF #places <= 0 THEN
+	        RETURN;
+	    END_IF;
+	END_REGION
+	
+	
+	REGION "GET SIZE"    
+	    #size := UDINT_TO_DINT("Int[].CountOfElement"(#data));
+	END_REGION
+	
+	
+	REGION "FILL CONDITION"
+	    IF #places >= #size THEN
+	        "Int[].Fill"(value := 0,
+	                         data := #data);
+	        RETURN;
+	    END_IF;
+	    
+	END_REGION
+	
+	
+	REGION "SHIFT"
+	    FOR #i := #size - 1 TO 0 BY -1 DO
+	        // pre conditions
+	        IF #i < 0 THEN
+	            EXIT;
+	        END_IF;
+	        IF #i - #places < 0 THEN
+	            EXIT;
+	        END_IF;
+	        // shift
+	        #data[#i] := #data[#i - #places];
+	    END_FOR;
+	END_REGION
+	
+	
+	REGION "CORRECT DUPLICATION"
+	    FOR #i := 0 TO #places - 1 DO
+	        #data[#i] := 0;
+	    END_FOR;
+	END_REGION
+	
+	
+	REGION "RETURN"
+	END_REGION
+END_FUNCTION
+

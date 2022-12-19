@@ -1,0 +1,72 @@
+﻿FUNCTION "Array.Any.Length" : UDInt
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "array" : Variant;
+   END_VAR
+
+   VAR_TEMP 
+      status : DInt;
+      ret : UDInt;
+   END_VAR
+
+
+BEGIN
+	#ret := CountOfElements(#array);
+	#"Array.Any.Length" := #ret;
+END_FUNCTION
+
+FUNCTION "Byte.Array.Shift" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      shift_by : Int;
+   END_VAR
+
+   VAR_IN_OUT 
+      characters : Array[*] of Byte;
+   END_VAR
+
+   VAR_TEMP 
+      _by : Int;
+      _i : Int;
+      _length : Int;
+      _offset : Int;
+      _start : Int;
+      _stop : Int;
+   END_VAR
+
+
+BEGIN
+	IF #shift_by = 0 THEN
+	    RETURN;
+	END_IF;
+	
+	#_length := UDINT_TO_INT("Array.Any.Length"(#characters)) - 1;
+	
+	IF #shift_by < 0 THEN
+	    #_start := 0;
+	    #_stop := #_length;
+	    #_by := 1;
+	END_IF;
+	
+	IF #shift_by > 0 THEN
+	    #_start := #_length;
+	    #_stop := 0;
+	    #_by := -1;
+	END_IF;
+	
+	FOR #_i := #_start TO #_stop BY #_by DO
+	    #_offset := #_i - #shift_by;
+	    IF #_offset < 0 THEN
+	        EXIT;
+	    END_IF;
+	    IF #_offset > #_length THEN
+	        EXIT;
+	    END_IF;
+	    #characters[#_i] := #characters[#_offset];
+	    #characters[#_offset] := ' ';
+	END_FOR;
+	
+END_FUNCTION
+

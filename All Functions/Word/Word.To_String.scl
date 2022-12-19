@@ -28,7 +28,7 @@ BEGIN
 	#"String.Trim" := #ret;
 END_FUNCTION
 
-FUNCTION "String.Strip Sign" : String
+FUNCTION "String.Strip_Sign" : String
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_INPUT 
@@ -56,10 +56,10 @@ BEGIN
 	    #"String Box" := RIGHT_STRING(IN := #"String Box", L := #Length - 1);
 	    
 	END_IF;
-	#"String.Strip Sign" := #"String Box";
+	#"String.Strip_Sign" := #"String Box";
 END_FUNCTION
 
-FUNCTION "Nibble.To_String" : String
+FUNCTION "Nibble.to_String" : String
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_INPUT 
@@ -76,7 +76,7 @@ BEGIN
 	#_nibble_as_int := BYTE_TO_INT(#value);
 	CASE #_nibble_as_int OF
 	    0..9:
-	        #_ret := "String.Trim"("String.Strip Sign"(INT_TO_STRING(#_nibble_as_int)));
+	        #_ret := "String.Trim"("String.Strip_Sign"(INT_TO_STRING(#_nibble_as_int)));
 	    10:
 	        #_ret := 'A';
 	    11:
@@ -90,10 +90,10 @@ BEGIN
 	    15:
 	        #_ret := 'F';
 	END_CASE;
-	#"Nibble.ToString" := #_ret;
+	#"Nibble.to_String" := #_ret;
 END_FUNCTION
 
-FUNCTION "Byte.To_String" : String
+FUNCTION "Byte.to_String" : String
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_INPUT 
@@ -115,12 +115,12 @@ BEGIN
 	#_low_nibble := #value AND #LOW_NIBBLE_MASK;
 	#_high_nibble := SHR_BYTE(IN := #value AND #HIGH_NIBBLE_MASK,
 	                          N := 4);
-	#"Byte.ToString" := CONCAT_STRING(IN1 := "Nibble.ToString"(#_high_nibble),
-	                                  IN2 := "Nibble.ToString"(#_low_nibble));
-	                                  
+	#"Byte.to_String" := CONCAT_STRING(IN1 := "Nibble.to_String"(#_high_nibble),
+	                                   IN2 := "Nibble.to_String"(#_low_nibble));
+	
 END_FUNCTION
 
-FUNCTION "Word.To_String" : String
+FUNCTION "Word.to_String" : String
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_INPUT 
@@ -133,7 +133,7 @@ VERSION : 0.1
 
 
 BEGIN
-	#"Word.ToString" := CONCAT_STRING(IN1 := "Byte.ToString"(#value.%B1),
-	                                  IN2 := "Byte.ToString"(#value.%B0));
+	#"Word.to_String" := CONCAT_STRING(IN1 := "Byte.to_String"(#value.%B1),
+	                                  IN2 := "Byte.to_String"(#value.%B0));
 END_FUNCTION
 

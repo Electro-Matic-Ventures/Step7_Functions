@@ -1,0 +1,115 @@
+﻿FUNCTION "Array.Any.Length" : UDInt
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "array" : Variant;
+   END_VAR
+
+   VAR_TEMP 
+      status : DInt;
+      ret : UDInt;
+   END_VAR
+
+
+BEGIN
+	#ret := CountOfElements(#array);
+	#"Array.Any.Length" := #ret;
+END_FUNCTION
+
+FUNCTION "Array.WString.Search" : Int
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "array" : Array[*] of WString;
+      search_term : WString;
+   END_VAR
+
+   VAR_TEMP 
+      _i : Int;
+      _length : Int;
+   END_VAR
+
+
+BEGIN
+	REGION "SEARCH ARRAY"    
+	    #_length := UDINT_TO_INT("Array.Any.Length"(#array)) - 1;
+	    FOR #_i := 0 TO #_length DO
+	        IF #array[#_i] = #search_term THEN
+	            #"Array.WString.Search" := #_i;
+	            RETURN;
+	        END_IF;
+	    END_FOR;
+	END_REGION
+	
+	REGION "RETURN"
+	    #"Array.WString.Search" := "NULL_TOKEN";
+	    RETURN;
+	END_REGION
+	
+END_FUNCTION
+
+FUNCTION "Array.WString.Reverse" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      null_token : WString;
+   END_VAR
+
+   VAR_IN_OUT 
+      wstring_array : Array[*] of WString;
+   END_VAR
+
+   VAR_TEMP 
+      _has_data_count : Int;
+      _i : Int;
+      _p_swap : Int;
+      _temp : WString;
+   END_VAR
+
+   VAR CONSTANT 
+      NOT_FOUND : Int := -1;
+   END_VAR
+
+
+BEGIN
+	REGION "CHECK FOR FIRST EMPTY POSITION"
+	    #_has_data_count := "Array.WString.Search"(array := #wstring_array,
+	                                               search_term := #null_token);
+	END_REGION
+	
+	
+	REGION "EXIT ON EMPTY ARRAY"
+	    IF #_has_data_count = 0 THEN
+	        RETURN;
+	    END_IF;
+	END_REGION
+	
+	
+	REGION "ARRAY IS FULL"
+	    IF #_has_data_count = #NOT_FOUND THEN
+	        #_has_data_count := UDINT_TO_INT("Array.Any.Length"(#wstring_array));
+	    END_IF;
+	END_REGION
+	 
+	
+	REGION "ADJUST TO ZERO INDEX"
+	    #_has_data_count -= 1;
+	END_REGION
+	
+	
+	REGION "SWAP ELEMENTS"
+	    FOR #_i := 0 TO #_has_data_count / 2 DO
+	        #_p_swap := #_has_data_count - #_i;
+	        #_temp := #wstring_array[#_i];
+	        #wstring_array[#_i] := #wstring_array[#_p_swap];
+	        #wstring_array[#_p_swap] := #_temp;
+	    END_FOR;
+	END_REGION
+	
+	
+	REGION "DONE"
+	    RETURN;
+	END_REGION
+	
+END_FUNCTION
+
