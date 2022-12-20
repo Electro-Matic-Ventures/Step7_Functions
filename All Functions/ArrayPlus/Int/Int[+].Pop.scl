@@ -2,7 +2,7 @@
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_IN_OUT 
-      buffer : "ArrayPlus<Int>.UDT";
+      buffer : "Int[+].UDT";
    END_VAR
 
    VAR_TEMP 
@@ -24,7 +24,7 @@ BEGIN
 	    #value := #buffer.data[0];
 	    // shift left
 	    "Int[].ShiftLeft"(places := 1,
-	                          data := #buffer.data);
+	                      data := #buffer.data);
 	    // decrement length
 	    #buffer.length -= 1;
 	    // return value

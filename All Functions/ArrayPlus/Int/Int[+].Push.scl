@@ -6,7 +6,7 @@ VERSION : 0.1
    END_VAR
 
    VAR_IN_OUT 
-      buffer : "ArrayPlus<Int>.UDT";
+      buffer : "Int[+].UDT";
    END_VAR
 
    VAR_TEMP 
@@ -32,7 +32,7 @@ BEGIN
 	REGION "PUSH"
 	    // shift
 	    "Int[].ShiftRight"(places := 1,
-	                           data := #buffer.data);
+	                       data := #buffer.data);
 	    // save to leftmost
 	    #buffer.data[0] := #value;
 	    // increment length

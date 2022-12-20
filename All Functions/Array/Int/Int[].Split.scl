@@ -1,0 +1,61 @@
+﻿FUNCTION "Int[].Split" : Void
+TITLE = Split An Integer Array in Half
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Machado
+FAMILY : 'Int[]'
+VERSION : 0.1
+//odd arrays split small on the left.
+//you need appropriatly dimensioned arrays for the output parameters
+   VAR_INPUT 
+      "array" : Array[*] of Int;   // array to be split
+   END_VAR
+
+   VAR_OUTPUT 
+      left : Array[*] of Int;   // will be smaller if input size is odd
+      right : Array[*] of Int;   // will be larger if input size is odd
+   END_VAR
+
+   VAR_TEMP 
+      i : DInt;
+      i_l : DInt;
+      i_r : DInt;
+      mid : DInt;
+      size : DInt;
+   END_VAR
+
+
+BEGIN
+	REGION "NOTES"
+	    (**)    
+	END_REGION
+	
+	
+	REGION "SIZE"
+	    #size := UDINT_TO_DINT("Int[].CountOfElement"(#array));
+	END_REGION
+	
+	
+	REGION "MID"
+	    #mid := #size / 2;
+	END_REGION
+	
+	
+	REGION "SPLIT"
+	    FOR #i := 0 TO #size - 1 DO
+	        IF #i < #mid THEN
+	            #left[#i_l] := #array[#i];
+	            #i_l += 1;
+	            CONTINUE;
+	        END_IF;
+	        #right[#i_r] := #array[#i];
+	        #i_r += 1;
+	    END_FOR;
+	END_REGION
+	
+	
+	REGION "RETURN"
+	    RETURN;
+	END_REGION
+	
+END_FUNCTION
+
