@@ -1,0 +1,26 @@
+﻿FUNCTION_BLOCK "Int.PseudoRandom"
+TITLE = Pseudo Random Int Generator
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Machado
+FAMILY : 'Int'
+VERSION : 0.1
+//uses time interval in nano seconds since last call
+   VAR_OUTPUT 
+      value : Int;
+   END_VAR
+
+   VAR 
+      runtime : "Runtime.UDT";
+   END_VAR
+
+   VAR CONSTANT 
+      OFFSET : LReal := 10000000.0;
+   END_VAR
+
+
+BEGIN
+	#runtime.time_delta := RUNTIME(#runtime.clock);
+	#runtime.time_delta *= #OFFSET;
+	#value := LREAL_TO_INT(#runtime.time_delta) MOD 100;
+END_FUNCTION_BLOCK
+
