@@ -8,11 +8,14 @@ VERSION : 0.1
 //you need appropriatly dimensioned arrays for the output parameters
    VAR_INPUT 
       "array" : Array[*] of Int;   // array to be split
+      null_token : Int;   // int system uses for null token
    END_VAR
 
    VAR_OUTPUT 
       left : Array[*] of Int;   // will be smaller if input size is odd
+      left_length : DInt;   // number of non null elements
       right : Array[*] of Int;   // will be larger if input size is odd
+      right_length : DInt;   // number of non null elements
    END_VAR
 
    VAR_TEMP 
@@ -30,13 +33,30 @@ BEGIN
 	END_REGION
 	
 	
+	REGION "INITIALIZE LEFT AND RIGHT"
+	    "Int[].Fill"(value := #null_token,
+	                 data := #left);
+	    "Int[].Fill"(value := #null_token,
+	                 data := #right);
+	END_REGION
+	
+	
 	REGION "SIZE"
-	    #size := UDINT_TO_DINT("Int[].CountOfElement"(#array));
+	    #size := UDINT_TO_DINT("Int[].CountOfElements"(#array));
 	END_REGION
 	
 	
 	REGION "MID"
 	    #mid := #size / 2;
+	END_REGION
+	
+	
+	REGION "LEFT AND RIGHT LENGHTS"
+	    #left_length := #mid;
+	    #right_length := #mid;
+	    IF #size MOD 2 <> 0 THEN
+	        #right_length += 1;
+	    END_IF;
 	END_REGION
 	
 	

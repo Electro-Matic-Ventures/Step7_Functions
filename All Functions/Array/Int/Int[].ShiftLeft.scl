@@ -24,7 +24,7 @@ BEGIN
 	
 	
 	REGION "GET SIZE"    
-	    #size := UDINT_TO_DINT("Int[].CountOfElement"(#data));
+	    #size := UDINT_TO_DINT("Int[].CountOfElements"(#data));
 	END_REGION
 	
 	

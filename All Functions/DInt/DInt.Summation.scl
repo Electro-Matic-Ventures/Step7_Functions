@@ -1,0 +1,14 @@
+﻿FUNCTION "DInt.Summation" : UDInt
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      start_index : DInt;
+      end_index : DInt;
+   END_VAR
+
+
+BEGIN
+	#"DInt.Summation" := REAL_TO_UDINT((#end_index - #start_index)*(#end_index - #start_index + 1) / 2);
+	RETURN;
+END_FUNCTION
+

@@ -1,0 +1,120 @@
+﻿FUNCTION_BLOCK "Int{Stack}.PseudoRandom"
+TITLE = Genertate Random Stack of Ints
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Machado
+FAMILY : 'Int{S}'
+VERSION : 0.1
+   VAR_INPUT 
+      generate_request : Bool;
+      clear_request : Bool;
+   END_VAR
+
+   VAR_OUTPUT 
+      message : String;
+   END_VAR
+
+   VAR_IN_OUT 
+      stack : "Int[+].Stack";
+   END_VAR
+
+   VAR 
+      clearing : Bool;
+      clear_pulse {InstructionName := 'R_TRIG'; LibVersion := '1.0'} : R_TRIG;
+      flipflop { S7_SetPoint := 'True'} : Bool;
+      generate_pulse {InstructionName := 'R_TRIG'; LibVersion := '1.0'; S7_SetPoint := 'False'} : R_TRIG;
+      generating { S7_SetPoint := 'True'} : Bool;
+      int_generator { S7_SetPoint := 'False'} : "Int.PseudoRandom";
+   END_VAR
+
+   VAR_TEMP 
+      random_int : Int;
+   END_VAR
+
+   VAR CONSTANT 
+      AMBIGUOUS_STATE : String := 'ambiguous state';
+      IDLE : String := 'idle';
+      CLEARING_MESSAGE : String := 'clearing...';
+      FILLING_MESSAGE : String := 'filling...';
+   END_VAR
+
+
+BEGIN
+	REGION "GENERATE COMMAND"
+	    #generate_pulse(CLK := #generate_request);
+	    IF #generate_pulse.Q THEN
+	        #generating := TRUE;
+	    END_IF;
+	END_REGION
+	
+	
+	REGION "CLEAR COMMAND"
+	    #clear_pulse(CLK := #clear_request);
+	    IF #clear_pulse.Q THEN
+	        #clearing := TRUE;
+	    END_IF;
+	END_REGION
+	
+	
+	REGION "STATE"INDEPENDANT FUNCTIONS"
+	    #int_generator(#random_int);
+	    #stack(add_request := #flipflop,
+	           clear_request := #clearing,
+	           null_token := "NULL_TOKEN",
+	           message => #message,
+	           value := #random_int);
+	END_REGION
+	
+	
+	REGION "AMBIGUOUS STATE"
+	    IF #generating AND #clearing THEN
+	        #generating := FALSE;
+	        #clearing := FALSE;
+	        #flipflop := FALSE;
+	        #message := #AMBIGUOUS_STATE;
+	        RETURN;
+	    END_IF;
+	END_REGION
+	
+	
+	REGION "IDLE STATE"
+	    IF NOT #generating AND NOT #clearing THEN
+	        #generating := FALSE;
+	        #clearing := FALSE;
+	        #flipflop := FALSE;
+	        #message := #IDLE;
+	        RETURN;
+	    END_IF;
+	END_REGION
+	
+	
+	REGION "FILLING STATE"
+	    IF #generating AND NOT #clearing THEN
+	        #flipflop := NOT #flipflop;
+	        IF #message = 'array full, no push' THEN
+	            #generating := FALSE;
+	            #clearing := FALSE;
+	            #flipflop := FALSE;
+	            #message := #FILLING_MESSAGE;
+	        END_IF;
+	        RETURN;
+	    END_IF;
+	END_REGION
+	
+	
+	REGION "CLEARING STATE"
+	    IF #clearing AND NOT #generating THEN
+	        #generating := FALSE;
+	        #clearing := FALSE;
+	        #flipflop := FALSE;
+	        #message := #CLEARING_MESSAGE;
+	        RETURN;
+	    END_IF;
+	END_REGION
+	
+	
+	REGION "RETURN"
+	    RETURN;
+	END_REGION
+	
+END_FUNCTION_BLOCK
+

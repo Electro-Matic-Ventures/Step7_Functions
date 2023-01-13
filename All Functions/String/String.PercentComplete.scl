@@ -1,0 +1,14 @@
+﻿FUNCTION "String.PercentComplete" : String
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      percent_complete : Int;
+   END_VAR
+
+
+BEGIN
+	#"String.PercentComplete" := CONCAT_STRING(IN1:=INT_TO_STRING(#percent_complete),
+	                                           IN2:='% complete');
+	RETURN;
+END_FUNCTION
+

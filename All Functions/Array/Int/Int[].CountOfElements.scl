@@ -1,4 +1,4 @@
-﻿FUNCTION "Int[].CountOfElement" : UDInt
+﻿FUNCTION "Int[].CountOfElements" : UDInt
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_INPUT 
@@ -7,7 +7,7 @@ VERSION : 0.1
 
 
 BEGIN
-	#"Int[].CountOfElement" := CountOfElements(#data);
+	#"Int[].CountOfElements" := CountOfElements(#data);
 	RETURN;
 END_FUNCTION
 

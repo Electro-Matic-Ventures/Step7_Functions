@@ -1,0 +1,19 @@
+﻿FUNCTION "Int.Summation" : UDInt
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      start_index : Int;
+      end_index : Int;
+   END_VAR
+
+   VAR_TEMP 
+      i : Int;
+      return : UDInt;
+   END_VAR
+
+
+BEGIN
+	#"Int.Summation" := REAL_TO_UDINT((#end_index - #start_index)*(#end_index - #start_index + 1) / 2);
+	RETURN;
+END_FUNCTION
+

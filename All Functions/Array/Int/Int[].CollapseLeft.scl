@@ -22,7 +22,7 @@ BEGIN
 	END_REGION
 	
 	REGION "GET SIZE"
-	    #size := UDINT_TO_DINT("Int[].CountOfElement"(#array));
+	    #size := UDINT_TO_DINT("Int[].CountOfElements"(#array));
 	END_REGION
 	
 	

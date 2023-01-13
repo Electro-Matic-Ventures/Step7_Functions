@@ -25,7 +25,7 @@ BEGIN
 	
 	
 	REGION "GET SIZE"
-	    #size := UDINT_TO_INT("Int[].CountOfElement"(#haystack));
+	    #size := UDINT_TO_INT("Int[].CountOfElements"(#haystack));
 	END_REGION
 	
 	

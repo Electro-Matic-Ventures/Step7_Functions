@@ -2,6 +2,7 @@
 { S7_Optimized_Access := 'TRUE' }
 VERSION : 0.1
    VAR_INPUT 
+      null_token : Int;
       places : DInt;   // must be positive
    END_VAR
 
@@ -24,14 +25,14 @@ BEGIN
 	
 	
 	REGION "GET SIZE"    
-	    #size := UDINT_TO_DINT("Int[].CountOfElement"(#data));
+	    #size := UDINT_TO_DINT("Int[].CountOfElements"(#data));
 	END_REGION
 	
 	
 	REGION "FILL CONDITION"
 	    IF #places >= #size THEN
 	        "Int[].Fill"(value := 0,
-	                         data := #data);
+	                     data := #data);
 	        RETURN;
 	    END_IF;
 	    

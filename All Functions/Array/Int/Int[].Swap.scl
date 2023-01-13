@@ -1,0 +1,20 @@
+﻿FUNCTION "Int[].Swap" : Void
+TITLE = Swap Elements In An Array
+{ S7_Optimized_Access := 'TRUE' }
+AUTHOR : Machado
+FAMILY : 'Int[]'
+VERSION : 0.1
+//swaps elements at positions a and b such that array[a], array[b] => array[b], array[a]
+   VAR_IN_OUT 
+      a : Int;   // array element at position a
+      b : Int;   // array element at position b
+   END_VAR
+
+
+BEGIN
+	#a := #a + #b;
+	#b := #a - #b;
+	#a := #a - #b;
+	RETURN;
+END_FUNCTION
+
